@@ -1,0 +1,173 @@
+build-deb	Set up job	﻿2026-10-03T08:03:31.4791910Z Current runner version: '2.337.0'
+build-deb	Set up job	2026-10-03T08:03:31.4821790Z ##[group]Runner Image Provisioner
+build-deb	Set up job	2026-10-03T08:03:31.4822500Z Hosted Compute Agent
+build-deb	Set up job	2026-10-03T08:03:31.4823070Z Version: 20260828.587
+build-deb	Set up job	2026-10-03T08:03:31.4823510Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+build-deb	Set up job	2026-10-03T08:03:31.4824020Z Build Date: 2026-08-28T16:44:25Z
+build-deb	Set up job	2026-10-03T08:03:31.4824550Z Worker ID: {db17d0bd-2520-4765-a561-2d6bfb748a04}
+build-deb	Set up job	2026-10-03T08:03:31.4825100Z Azure Region: westus
+build-deb	Set up job	2026-10-03T08:03:31.4825450Z ##[endgroup]
+build-deb	Set up job	2026-10-03T08:03:31.4826400Z ##[group]Operating System
+build-deb	Set up job	2026-10-03T08:03:31.4848000Z macOS
+build-deb	Set up job	2026-10-03T08:03:31.4848590Z 14.8.9
+build-deb	Set up job	2026-10-03T08:03:31.4848930Z 23J631
+build-deb	Set up job	2026-10-03T08:03:31.4849430Z ##[endgroup]
+build-deb	Set up job	2026-10-03T08:03:31.4849950Z ##[group]Runner Image
+build-deb	Set up job	2026-10-03T08:03:31.4850440Z Image: macos-14-arm64
+build-deb	Set up job	2026-10-03T08:03:31.4850930Z Version: 20260831.0302.1
+build-deb	Set up job	2026-10-03T08:03:31.4851810Z Included Software: https://github.com/actions/runner-images/blob/macos-14-arm64/20260831.0302/images/macos/macos-14-arm64-Readme.md
+build-deb	Set up job	2026-10-03T08:03:31.4853500Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-14-arm64%2F20260831.0302
+build-deb	Set up job	2026-10-03T08:03:31.4854380Z ##[endgroup]
+build-deb	Set up job	2026-10-03T08:03:31.4855450Z ##[group]GITHUB_TOKEN Permissions
+build-deb	Set up job	2026-10-03T08:03:31.4858200Z Contents: read
+build-deb	Set up job	2026-10-03T08:03:31.4858700Z Metadata: read
+build-deb	Set up job	2026-10-03T08:03:31.4859040Z Packages: read
+build-deb	Set up job	2026-10-03T08:03:31.4859390Z ##[endgroup]
+build-deb	Set up job	2026-10-03T08:03:31.4861280Z Secret source: Actions
+build-deb	Set up job	2026-10-03T08:03:31.4862110Z Cache mode: write
+build-deb	Set up job	2026-10-03T08:03:31.4862810Z Prepare workflow directory
+build-deb	Set up job	2026-10-03T08:03:31.5377780Z Prepare all required actions
+build-deb	Set up job	2026-10-03T08:03:31.5460540Z Getting action download info
+build-deb	Set up job	2026-10-03T08:03:31.8185170Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+build-deb	Set up job	2026-10-03T08:03:32.2821430Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+build-deb	Set up job	2026-10-03T08:03:32.5777170Z Complete job name: build-deb
+build-deb	Checkout	﻿2026-10-03T08:03:32.6331400Z ##[group]Run actions/checkout@v4
+build-deb	Checkout	2026-10-03T08:03:32.6332010Z with:
+build-deb	Checkout	2026-10-03T08:03:32.6332360Z   repository: ssx-computer/ios-agent
+build-deb	Checkout	2026-10-03T08:03:32.6335090Z   token: ***
+build-deb	Checkout	2026-10-03T08:03:32.6335400Z   ssh-strict: true
+build-deb	Checkout	2026-10-03T08:03:32.6335720Z   ssh-user: git
+build-deb	Checkout	2026-10-03T08:03:32.6336100Z   persist-credentials: true
+build-deb	Checkout	2026-10-03T08:03:32.6336460Z   clean: true
+build-deb	Checkout	2026-10-03T08:03:32.6336790Z   sparse-checkout-cone-mode: true
+build-deb	Checkout	2026-10-03T08:03:32.6337170Z   fetch-depth: 1
+build-deb	Checkout	2026-10-03T08:03:32.6337480Z   fetch-tags: false
+build-deb	Checkout	2026-10-03T08:03:32.6337820Z   show-progress: true
+build-deb	Checkout	2026-10-03T08:03:32.6338150Z   lfs: false
+build-deb	Checkout	2026-10-03T08:03:32.6338470Z   submodules: false
+build-deb	Checkout	2026-10-03T08:03:32.6338810Z   set-safe-directory: true
+build-deb	Checkout	2026-10-03T08:03:32.6339180Z   allow-unsafe-pr-checkout: false
+build-deb	Checkout	2026-10-03T08:03:32.6339770Z ##[endgroup]
+build-deb	Checkout	2026-10-03T08:03:33.0327510Z Syncing repository: ssx-computer/ios-agent
+build-deb	Checkout	2026-10-03T08:03:33.0329320Z ##[group]Getting Git version info
+build-deb	Checkout	2026-10-03T08:03:33.0329910Z Working directory is '/Users/runner/work/ios-agent/ios-agent'
+build-deb	Checkout	2026-10-03T08:03:33.0330890Z [command]/opt/homebrew/bin/git version
+build-deb	Checkout	2026-10-03T08:03:33.0599930Z git version 2.55.0
+build-deb	Checkout	2026-10-03T08:03:33.0626630Z ##[endgroup]
+build-deb	Checkout	2026-10-03T08:03:33.0646560Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/1c5d7a61-f383-4268-b203-de25bac353c3/.gitconfig'
+build-deb	Checkout	2026-10-03T08:03:33.0657310Z Temporarily overriding HOME='/Users/runner/work/_temp/1c5d7a61-f383-4268-b203-de25bac353c3' before making global git config changes
+build-deb	Checkout	2026-10-03T08:03:33.0658930Z Adding repository directory to the temporary git global config as a safe directory
+build-deb	Checkout	2026-10-03T08:03:33.0673420Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/ios-agent/ios-agent
+build-deb	Checkout	2026-10-03T08:03:33.0802720Z Deleting the contents of '/Users/runner/work/ios-agent/ios-agent'
+build-deb	Checkout	2026-10-03T08:03:33.0806780Z ##[group]Initializing the repository
+build-deb	Checkout	2026-10-03T08:03:33.0809360Z [command]/opt/homebrew/bin/git init /Users/runner/work/ios-agent/ios-agent
+build-deb	Checkout	2026-10-03T08:03:33.1056140Z hint: Using 'master' as the name for the initial branch. This default branch name
+build-deb	Checkout	2026-10-03T08:03:33.1057610Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build-deb	Checkout	2026-10-03T08:03:33.1058520Z hint: to use in all of your new repositories, which will suppress this warning,
+build-deb	Checkout	2026-10-03T08:03:33.1059270Z hint: call:
+build-deb	Checkout	2026-10-03T08:03:33.1059660Z hint:
+build-deb	Checkout	2026-10-03T08:03:33.1060220Z hint: 	git config --global init.defaultBranch <name>
+build-deb	Checkout	2026-10-03T08:03:33.1060860Z hint:
+build-deb	Checkout	2026-10-03T08:03:33.1061420Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build-deb	Checkout	2026-10-03T08:03:33.1062520Z hint: 'development'. The just-created branch can be renamed via this command:
+build-deb	Checkout	2026-10-03T08:03:33.1063150Z hint:
+build-deb	Checkout	2026-10-03T08:03:33.1063530Z hint: 	git branch -m <name>
+build-deb	Checkout	2026-10-03T08:03:33.1063930Z hint:
+build-deb	Checkout	2026-10-03T08:03:33.1080180Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build-deb	Checkout	2026-10-03T08:03:33.1081120Z Initialized empty Git repository in /Users/runner/work/ios-agent/ios-agent/.git/
+build-deb	Checkout	2026-10-03T08:03:33.1082800Z [command]/opt/homebrew/bin/git remote add origin https://github.com/ssx-computer/ios-agent
+build-deb	Checkout	2026-10-03T08:03:33.1164170Z ##[endgroup]
+build-deb	Checkout	2026-10-03T08:03:33.1166340Z ##[group]Disabling automatic garbage collection
+build-deb	Checkout	2026-10-03T08:03:33.1169060Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+build-deb	Checkout	2026-10-03T08:03:33.1225440Z ##[endgroup]
+build-deb	Checkout	2026-10-03T08:03:33.1226180Z ##[group]Setting up auth
+build-deb	Checkout	2026-10-03T08:03:33.1231470Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-deb	Checkout	2026-10-03T08:03:33.1303890Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-deb	Checkout	2026-10-03T08:03:33.2354250Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-deb	Checkout	2026-10-03T08:03:33.2410560Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-deb	Checkout	2026-10-03T08:03:33.3394880Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-deb	Checkout	2026-10-03T08:03:33.3805590Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-deb	Checkout	2026-10-03T08:03:33.5610570Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build-deb	Checkout	2026-10-03T08:03:33.5616580Z ##[endgroup]
+build-deb	Checkout	2026-10-03T08:03:33.5618560Z ##[group]Fetching the repository
+build-deb	Checkout	2026-10-03T08:03:33.5631810Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3751852947e0bc6d105c65cff0480eab325a8c64:refs/remotes/origin/main
+build-deb	Checkout	2026-10-03T08:03:34.2005890Z From https://github.com/ssx-computer/ios-agent
+build-deb	Checkout	2026-10-03T08:03:34.2051430Z  * [new ref]         3751852947e0bc6d105c65cff0480eab325a8c64 -> origin/main
+build-deb	Checkout	2026-10-03T08:03:34.2470440Z ##[endgroup]
+build-deb	Checkout	2026-10-03T08:03:34.2535510Z ##[group]Determining the checkout info
+build-deb	Checkout	2026-10-03T08:03:34.2562080Z ##[endgroup]
+build-deb	Checkout	2026-10-03T08:03:34.2584870Z [command]/opt/homebrew/bin/git sparse-checkout disable
+build-deb	Checkout	2026-10-03T08:03:34.2590800Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+build-deb	Checkout	2026-10-03T08:03:34.2597240Z ##[group]Checking out the ref
+build-deb	Checkout	2026-10-03T08:03:34.2600710Z [command]/opt/homebrew/bin/git checkout --progress --force -B main refs/remotes/origin/main
+build-deb	Checkout	2026-10-03T08:03:34.2604400Z Switched to a new branch 'main'
+build-deb	Checkout	2026-10-03T08:03:34.2606850Z branch 'main' set up to track 'origin/main'.
+build-deb	Checkout	2026-10-03T08:03:34.2609540Z ##[endgroup]
+build-deb	Checkout	2026-10-03T08:03:34.2611590Z [command]/opt/homebrew/bin/git log -1 --format=%H
+build-deb	Checkout	2026-10-03T08:03:34.2612710Z 3751852947e0bc6d105c65cff0480eab325a8c64
+build-deb	Xcode license	﻿2026-10-03T08:03:34.2891260Z ##[group]Run sudo xcodebuild -license accept || true
+build-deb	Xcode license	2026-10-03T08:03:34.2893020Z ^[[36;1msudo xcodebuild -license accept || true^[[0m
+build-deb	Xcode license	2026-10-03T08:03:34.2894220Z ^[[36;1msudo xcode-select -s /Applications/Xcode.app^[[0m
+build-deb	Xcode license	2026-10-03T08:03:34.3027340Z shell: /bin/bash -e {0}
+build-deb	Xcode license	2026-10-03T08:03:34.3028290Z ##[endgroup]
+build-deb	Install jq (Theos packaging dependency)	﻿2026-10-03T08:03:34.6533980Z ##[group]Run brew install jq 2>/dev/null || true
+build-deb	Install jq (Theos packaging dependency)	2026-10-03T08:03:34.6535110Z ^[[36;1mbrew install jq 2>/dev/null || true^[[0m
+build-deb	Install jq (Theos packaging dependency)	2026-10-03T08:03:34.6597180Z shell: /bin/bash -e {0}
+build-deb	Install jq (Theos packaging dependency)	2026-10-03T08:03:34.6598010Z ##[endgroup]
+build-deb	Setup Theos	﻿2026-10-03T08:03:37.4229470Z ##[group]Run set -e
+build-deb	Setup Theos	2026-10-03T08:03:37.4229700Z ^[[36;1mset -e^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4229840Z ^[[36;1mok=0^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4229990Z ^[[36;1mfor i in 1 2 3; do^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4230170Z ^[[36;1m  rm -rf "$HOME/theos"^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4230830Z ^[[36;1m  if git clone --depth=1 https://github.com/theos/theos.git "$HOME/theos" \^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4231250Z ^[[36;1m     && test -f "$HOME/theos/autogen.sh"; then ok=1; break; fi^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4231630Z ^[[36;1m  echo "theos clone attempt $i failed, retrying in 15s..."^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4231990Z ^[[36;1m  sleep 15^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4232130Z ^[[36;1mdone^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4232310Z ^[[36;1mtest "$ok" = "1"^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4232530Z ^[[36;1mcd "$HOME/theos"^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4232750Z ^[[36;1m./autogen.sh^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4232930Z ^[[36;1m./configure --enable-cctools^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4233170Z ^[[36;1mmake^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4233360Z ^[[36;1mecho "THEOS=$HOME/theos" >> "$GITHUB_ENV"^[[0m
+build-deb	Setup Theos	2026-10-03T08:03:37.4297340Z shell: /bin/bash -e {0}
+build-deb	Setup Theos	2026-10-03T08:03:37.4297620Z ##[endgroup]
+build-deb	Setup Theos	2026-10-03T08:03:37.4832850Z Cloning into '/Users/runner/theos'...
+build-deb	Setup Theos	2026-10-03T08:03:38.2657320Z theos clone attempt 1 failed, retrying in 15s...
+build-deb	Setup Theos	2026-10-03T08:03:53.4484710Z Cloning into '/Users/runner/theos'...
+build-deb	Setup Theos	2026-10-03T08:03:54.2377900Z theos clone attempt 2 failed, retrying in 15s...
+build-deb	Setup Theos	2026-10-03T08:04:09.4055350Z Cloning into '/Users/runner/theos'...
+build-deb	Setup Theos	2026-10-03T08:04:10.2519350Z theos clone attempt 3 failed, retrying in 15s...
+build-deb	Setup Theos	2026-10-03T08:04:25.3765650Z ##[error]Process completed with exit code 1.
+build-deb	Upload .deb artifact	﻿2026-10-03T08:04:25.4017600Z ##[group]Run actions/upload-artifact@v4
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.4017920Z with:
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.4018170Z   name: iosagent-deb
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.4018500Z   path: tweak/com.ssx.iosagent_*.deb
+build-deb	Upload .deb artifact	tweak/build.log
+build-deb	Upload .deb artifact	
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.4018820Z   if-no-files-found: warn
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.4019110Z   compression-level: 6
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.4019340Z   overwrite: false
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.4019630Z   include-hidden-files: false
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.4019880Z ##[endgroup]
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.6815560Z (node:50888) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.6817800Z (Use `node --trace-deprecation ...` to show where the warning was created)
+build-deb	Upload .deb artifact	2026-10-03T08:04:25.6869050Z ##[warning]No files were found with the provided path: tweak/com.ssx.iosagent_*.deb
+build-deb	Upload .deb artifact	tweak/build.log. No artifacts will be uploaded.
+build-deb	Post Checkout	﻿2026-10-03T08:04:25.7227460Z Post job cleanup.
+build-deb	Post Checkout	2026-10-03T08:04:25.8197170Z [command]/opt/homebrew/bin/git version
+build-deb	Post Checkout	2026-10-03T08:04:25.8288750Z git version 2.55.0
+build-deb	Post Checkout	2026-10-03T08:04:25.8309750Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/75304a0e-23e1-466e-ac92-f8c9ba6791c7/.gitconfig'
+build-deb	Post Checkout	2026-10-03T08:04:25.8321540Z Temporarily overriding HOME='/Users/runner/work/_temp/75304a0e-23e1-466e-ac92-f8c9ba6791c7' before making global git config changes
+build-deb	Post Checkout	2026-10-03T08:04:25.8323730Z Adding repository directory to the temporary git global config as a safe directory
+build-deb	Post Checkout	2026-10-03T08:04:25.8325360Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/ios-agent/ios-agent
+build-deb	Post Checkout	2026-10-03T08:04:25.8382150Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-deb	Post Checkout	2026-10-03T08:04:25.8437410Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-deb	Post Checkout	2026-10-03T08:04:25.9113970Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-deb	Post Checkout	2026-10-03T08:04:25.9159180Z http.https://github.com/.extraheader
+build-deb	Post Checkout	2026-10-03T08:04:25.9171590Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+build-deb	Post Checkout	2026-10-03T08:04:25.9232540Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-deb	Post Checkout	2026-10-03T08:04:25.9828690Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-deb	Post Checkout	2026-10-03T08:04:25.9881430Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-deb	Complete job	﻿2026-10-03T08:04:26.0597270Z Cleaning up orphan processes
+build-deb	Complete job	2026-10-03T08:04:26.3408570Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

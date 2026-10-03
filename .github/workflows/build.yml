@@ -1,5 +1,7 @@
 # iOSAgent 构建流：macOS + Theos → 单个 .deb（含 Tweak + iosagentd）
-# 产物：com.ssx.iosagent_0.1.0_iphoneos-arm64.deb
+# theos/sdks 走 actions/checkout（认证通道，规避 runner 出口网络对匿名
+# git clone / curl 的阻断）。SDK 用 iPhoneOS14.5.sdk（对 RootHide/Dopamine
+# 均向前兼容；私有 API 全部动态查找，不受 deployment 限制）。
 name: build
 
 on:
@@ -18,42 +20,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Xcode license
-        run: |
-          sudo xcodebuild -license accept || true
-          sudo xcode-select -s /Applications/Xcode.app
+      - name: Checkout theos
+        uses: actions/checkout@v4
+        with:
+          repository: theos/theos
+          path: theos
+          fetch-depth: 1
 
-      - name: Install jq (Theos packaging dependency)
-        run: |
-          brew install jq 2>/dev/null || true
+      - name: Checkout theos sdks
+        uses: actions/checkout@v4
+        with:
+          repository: theos/sdks
+          path: theos/sdks
+          fetch-depth: 1
 
-      - name: Setup Theos
+      - name: Install theos
         run: |
           set -e
-          ok=0
-          for i in 1 2 3; do
-            rm -rf "$HOME/theos" "$HOME/theos.tar.gz"
-            if curl -fsSL --retry 2 -o "$HOME/theos.tar.gz" \
-                 https://codeload.github.com/theos/theos/tar.gz/refs/heads/master \
-               && tar xzf "$HOME/theos.tar.gz" -C "$HOME" \
-               && test -f "$HOME/theos-master/autogen.sh"; then
-              mv "$HOME/theos-master" "$HOME/theos"; ok=1; break
-            fi
-            echo "theos download attempt $i failed, retrying in 10s..."
-            sleep 10
-          done
-          test "$ok" = "1"
+          brew install autoconf automake jq 2>/dev/null || true
+          mv theos "$HOME/theos"
           cd "$HOME/theos"
           ./autogen.sh
-          ./configure --enable-cctools
+          ./configure
           make
           echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
 
       - name: Build .deb
         run: |
+          set -e
           cd tweak
           make clean package 2>&1 | tee build.log
-          echo "---- 产物 ----"
           ls -la com.ssx.iosagent_*.deb
           test -f com.ssx.iosagent_*.deb || { tail -100 build.log; exit 1; }
 
