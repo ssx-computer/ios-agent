@@ -177,7 +177,7 @@ static NSDictionary *tcpRpc(int port, NSDictionary *cmd, int timeoutSec) {
     NSMutableData *buf = [NSMutableData data];
     int waited = 0;
     while (waited < timeoutSec * 10) {
-        const unsigned char *b = buf.bytes;
+        const unsigned char *b = (const unsigned char *)buf.bytes;
         size_t len = buf.length;
         for (size_t i = 0; i < len; i++)
             if (b[i] == '\n') {
@@ -270,9 +270,8 @@ static NSDictionary *toolShell(NSDictionary *args) {
     }
     posix_spawn_file_actions_adddup2(&fa, outfd[1], STDOUT_FILENO);
     posix_spawn_file_actions_adddup2(&fa, outfd[1], STDERR_FILENO);
-    posix_spawnattr_setfileactions(&at, &fa);
     pid_t pid = -1;
-    int rc = posix_spawnp(&pid, argv[0], &at, argv, envp);
+    int rc = posix_spawnp(&pid, argv[0], &fa, &at, argv, envp);
     posix_spawn_file_actions_destroy(&fa);
     posix_spawnattr_destroy(&at);
     if (rc != 0) { close(outfd[0]); close(outfd[1]); return @{@"ok": @NO, @"err": @(rc)}; }
@@ -636,7 +635,7 @@ static void webHandle(int c) {
         [req appendBytes:buf length:(NSUInteger)n];
         if (req.length > (1024 * 64)) break;
         if (bodyRemain < 0) {
-            const unsigned char *b = req.bytes;
+            const unsigned char *b = (const unsigned char *)req.bytes;
             for (NSUInteger k = 4; k + 3 < req.length; k++) {
                 if (!memcmp(b + k, "\r\n\r\n", 4)) {
                     hdrLen = k + 4;

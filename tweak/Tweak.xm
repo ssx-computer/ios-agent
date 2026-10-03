@@ -23,6 +23,7 @@
 #import <stdio.h>
 #import <unistd.h>
 #import <sys/un.h>
+#import <sys/stat.h>
 #import <string.h>
 #import <netinet/in.h>
 #import <netdb.h>
@@ -48,7 +49,7 @@ static void iagentLog(const char *fmt, ...) {
 
 /* ------------------------------------------------------------------ */
 static BOOL isSpringBoard(void) {
-    return [[[NSProcessInfo processInfo] bundleIdentifier] isEqualToString:@"com.apple.springboard"];
+    return [[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"];
 }
 
 static UIWindow *keyWin(void) {
@@ -68,7 +69,7 @@ static unsigned fnv1a(const char *s) {
 
 static int gPort = 0;
 static void makePort(void) {
-    NSString *bid = [[NSProcessInfo processInfo] bundleIdentifier] ?: @"unknown";
+    NSString *bid = [[NSBundle mainBundle] bundleIdentifier] ?: @"unknown";
     bid = [bid stringByReplacingOccurrencesOfString:@"." withString:@"_"];
     if ([bid length] > 40) bid = [bid substringToIndex:40];
     gPort = 22100 + (int)(fnv1a([bid UTF8String]) % 999);
@@ -79,7 +80,7 @@ static void makePort(void) {
 }
 
 static void makeSockPath(void) {
-    NSString *bid = [[NSProcessInfo processInfo] bundleIdentifier] ?: @"unknown";
+    NSString *bid = [[NSBundle mainBundle] bundleIdentifier] ?: @"unknown";
     bid = [bid stringByReplacingOccurrencesOfString:@"." withString:@"_"];
     if ([bid length] > 40) bid = [bid substringToIndex:40];
     snprintf(gSock, sizeof gSock, "/private/tmp/iosagent_%s.sock", [bid UTF8String]);
@@ -307,7 +308,7 @@ static NSString *nodeText(UIView *v) {
             if (t.length) return t.length > 80 ? [t substringToIndex:80] : t;
         }
         if ([v isKindOfClass:[UIButton class]]) {
-            NSString *t = [((UIButton *)v) titleForControlEvents:UIControlEventTouchUpInside];
+            NSString *t = [((UIButton *)v) currentTitle];
             if (t.length) return t;
         }
         id al = [v accessibilityLabel];
@@ -329,7 +330,7 @@ static void walkView(UIView *v, int depth, NSMutableArray *out) {
             NSString *t = nodeText(v);
             if (t) n[@"2"] = t;
             if (v.accessibilityIdentifier.length) n[@"3"] = v.accessibilityIdentifier;
-            if ([v respondsToSelector:@selector(isEnabled)]) n[@"4"] = @([v isEnabled]);
+            if ([v isKindOfClass:[UIControl class]]) n[@"4"] = @(((UIControl *)v).enabled);
             [out addObject:n];
         }
         NSArray *subs = v.subviews;
@@ -352,10 +353,10 @@ static NSDictionary *doOpen(NSDictionary *p) {
     NSString *bid = p[@"bundleId"];
     if (!gSB) return @{@"ok": @NO, @"err": @"open_app only works inside SpringBoard process"};
     @try {
-        NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-        SEL sel = NSSelectorFromString(@"openApplicationWithIdentifier:andUIDelegate:");
-        if ([ws respondsToSelector:sel]) {
-            NSInvocation *iv = [NSInvocation invocationWithMethodSignature:[ws methodSignatureForSelector:sel]];
+        id ws = [[NSClassFromString(@"NSWorkspace") alloc] init];
+        SEL sel = sel_registerName("openApplicationWithIdentifier:andUIDelegate:");
+        if (ws && [(id)ws respondsToSelector:sel]) {
+            NSInvocation *iv = [NSInvocation invocationWithMethodSignature:[(id)ws methodSignatureForSelector:sel]];
             [iv setTarget:ws];
             [iv setSelector:sel];
             [iv setArgument:&bid atIndex:2];
@@ -364,11 +365,21 @@ static NSDictionary *doOpen(NSDictionary *p) {
             [iv invoke];
             return @{@"ok": @YES, @"via": @"NSWorkspace"};
         }
+        /* 回退：posix_spawn 跑 bsctl（iOS 无 system()） */
         NSString *safe = [bid stringByReplacingOccurrencesOfString:@"'" withString:@""];
         NSString *cmd = [NSString stringWithFormat:
-                         @"(mclabsbsctl launch '%s' || iobctl launch '%s') >/dev/null 2>&1 &",
-                         [safe UTF8String], [safe UTF8String]];
-        int r = system([cmd UTF8String]);
+                         @"(mclabsbsctl launch '%@' || iobctl launch '%@' || sbopen '%@') >/dev/null 2>&1 &",
+                         safe, safe, safe];
+        char *shArgv[4] = { "/bin/sh", "-c", (char *)[cmd UTF8String], 0 };
+        char *shEnvp[3] = { "PATH=/usr/bin:/bin:/usr/sbin:/sbin:/var/jb/usr/bin", 0 };
+        posix_spawnattr_t at; posix_spawnattr_init(&at);
+        posix_spawn_file_actions_t fa; posix_spawn_file_actions_init(&fa);
+        posix_spawn_file_actions_addopen(&fa, 1, "/dev/null", O_WRONLY, 0);
+        posix_spawn_file_actions_addopen(&fa, 2, "/dev/null", O_WRONLY, 0);
+        pid_t p = -1;
+        int r = posix_spawnp(&p, shArgv[0], &fa, &at, shArgv, shEnvp);
+        posix_spawn_file_actions_destroy(&fa);
+        posix_spawnattr_destroy(&at);
         return @{@"ok": @(r == 0), @"via": @"bsctl"};
     } @catch (NSException *e) {
         return @{@"ok": @NO, @"err": e.reason ?: @""};
@@ -385,7 +396,7 @@ static void appendNotif(NSString *bid, NSString *title, NSString *body) {
         NSData *line = [NSJSONSerialization dataWithJSONObject:rec options:0 error:nil];
         FILE *f = fopen("/private/tmp/iosagent_notif.jsonl", "a");
         if (!f) return;
-        fwrite(line, 1, line.length, f);
+        fwrite(line.bytes, 1, line.length, f);
         fputc('\n', f);
         fclose(f);
     } @catch (id e) {}
@@ -396,7 +407,7 @@ static void appendNotif(NSString *bid, NSString *title, NSString *body) {
         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))h {
     @try {
         UNNotificationContent *c = n.request.content;
-        appendNotif([NSProcessInfo processInfo].bundleIdentifier,
+        appendNotif([NSBundle mainBundle].bundleIdentifier,
                     c.title ?: @"", c.body ?: c.subtitle ?: @"");
     } @catch (id e) {}
     if (h) h(UNNotificationPresentationOptionBanner);
@@ -405,7 +416,7 @@ static void appendNotif(NSString *bid, NSString *title, NSString *body) {
 - (void)didReceiveNotificationResponse:(UNNotificationResponse *)r {
     @try {
         UNNotificationContent *c = r.notification.request.content;
-        appendNotif([NSProcessInfo processInfo].bundleIdentifier,
+        appendNotif([NSBundle mainBundle].bundleIdentifier,
                     c.title ?: @"", c.body ?: @"");
     } @catch (id e) {}
 }
@@ -421,7 +432,7 @@ static NSDictionary *handleCommand(NSDictionary *cmd) {
     @try {
         if ([c isEqualToString:@"ping"])
             return @{@"ok": @YES,
-                     @"bundle": [NSProcessInfo processInfo].bundleIdentifier ?: @"",
+                     @"bundle": [NSBundle mainBundle].bundleIdentifier ?: @"",
                      @"sb": @(gSB),
                      @"active": @([UIApplication sharedApplication].applicationState == UIApplicationStateActive)};
         if ([c isEqualToString:@"shot"])  return doShot(p);
@@ -444,14 +455,14 @@ static void serveConn(int fd) {
         if (n <= 0) break;
         [buf appendBytes:tmp length:(NSUInteger)n];
         while (1) {
-            const unsigned char *bytes = buf.bytes;
+            const unsigned char *bytes = (const unsigned char *)buf.bytes;
             size_t len = buf.length;
             int idx = -1;
             for (size_t i = 0; i < len; i++)
                 if (bytes[i] == '\n') { idx = (int)i; break; }
             if (idx < 0) break;
             NSData *lineData = [buf subdataWithRange:NSMakeRange(0, (NSUInteger)idx + 1)];
-            [buf deleteBytesInRange:NSMakeRange(0, (NSUInteger)idx + 1)];
+            [buf replaceBytesInRange:NSMakeRange(0, (NSUInteger)idx + 1) withBytes:nil length:0];
             NSDictionary *cmd = [NSJSONSerialization JSONObjectWithData:lineData
                                                                options:0 error:NULL];
             NSDictionary *res = handleCommand(cmd) ?: @{@"ok": @NO, @"err": @"bad json"};
@@ -500,7 +511,7 @@ static void ensureAgentDaemon(void) {
         }
         posix_spawn_file_actions_addopen(&fa, 0, "/dev/null", O_RDONLY, 0);
         pid_t p = -1;
-        int rc = posix_spawnp(&p, argv[0], &at, argv, envp);
+        int rc = posix_spawnp(&p, argv[0], &fa, &at, argv, envp);
         if (rc == 0) {
             FILE *of = fopen("/private/tmp/iosagentd.pid", "w");
             if (of) { fprintf(of, "%d\n", (int)p); fclose(of); }
