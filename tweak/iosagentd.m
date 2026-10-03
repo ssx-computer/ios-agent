@@ -696,7 +696,9 @@ static void webHandle(int c) {
     int bodyRemain = -1;
     NSUInteger hdrLen = 0;
     int done = 0;
-    for (int i = 0; i < 600 && !done; i++) {
+    for (int i = 0; i < 30 && !done; i++) {
+        /* 完整性检查放在循环开头：头部解析完的下一轮立即响应（GET 无 body 时不再等待） */
+        if (bodyRemain >= 0 && req.length >= hdrLen + (NSUInteger)bodyRemain) { done = 1; break; }
         fd_set rfds; FD_ZERO(&rfds); FD_SET(c, &rfds);
         struct timeval tv = { 1, 0 };
         int r = select(c + 1, &rfds, 0, 0, &tv);
@@ -722,8 +724,8 @@ static void webHandle(int c) {
                     break;
                 }
             }
-        } else if (req.length >= hdrLen + (NSUInteger)bodyRemain) {
-            done = 1;
+            /* 小请求（头部+body 已全部在缓冲）本轮立即完成 */
+            if (bodyRemain >= 0 && req.length >= hdrLen + (NSUInteger)bodyRemain) done = 1;
         }
     }
     if (!done || !hdrLen) { close(c); return; }
