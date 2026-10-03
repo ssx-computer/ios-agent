@@ -1,4 +1,7 @@
 build-log*.txt
+bl*.txt
+*.b64
+binlist.txt
 *.deb
 dist/
 .theos/

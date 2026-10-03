@@ -14,4 +14,4 @@ iosagentd_INSTALL_PATH := /usr/bin
 iosagentd_CFLAGS := -fobjc-arc
 iosagentd_LDFLAGS += -lcurl
 
-include $(THEOS)/makefiles/
+include $(THEOS)/makefiles/common.mk
