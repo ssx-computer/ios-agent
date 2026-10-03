@@ -57,7 +57,7 @@ static void loadConfig(void) {
     g_apiBase = strdup("https://example-llm/v1");
     g_apiKey = strdup("");
     g_model = strdup("gpt-4o");
-    if ([NSFileManager defaultManager].fileExistsAtPath:CFG_FILE) {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:CFG_FILE]) {
         NSData *d = [NSData dataWithContentsOfFile:CFG_FILE];
         NSDictionary *j = d ? [NSJSONSerialization JSONObjectWithData:d options:0 error:NULL] : nil;
         if ([j isKindOfClass:[NSDictionary class]]) {

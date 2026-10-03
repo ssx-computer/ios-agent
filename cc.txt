@@ -1,0 +1,615 @@
+build-deb	Set up job	﻿2026-10-03T10:54:49.7478110Z Current runner version: '2.337.0'
+build-deb	Set up job	2026-10-03T10:54:49.7500030Z ##[group]Runner Image Provisioner
+build-deb	Set up job	2026-10-03T10:54:49.7500660Z Hosted Compute Agent
+build-deb	Set up job	2026-10-03T10:54:49.7501060Z Version: 20260828.587
+build-deb	Set up job	2026-10-03T10:54:49.7502360Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+build-deb	Set up job	2026-10-03T10:54:49.7503010Z Build Date: 2026-08-28T16:44:25Z
+build-deb	Set up job	2026-10-03T10:54:49.7503530Z Worker ID: {95ca74d3-1d8e-4a7a-a96b-994173c8a26b}
+build-deb	Set up job	2026-10-03T10:54:49.7504090Z Azure Region: westus
+build-deb	Set up job	2026-10-03T10:54:49.7504520Z ##[endgroup]
+build-deb	Set up job	2026-10-03T10:54:49.7505670Z ##[group]Operating System
+build-deb	Set up job	2026-10-03T10:54:49.7506110Z macOS
+build-deb	Set up job	2026-10-03T10:54:49.7506450Z 14.8.9
+build-deb	Set up job	2026-10-03T10:54:49.7506810Z 23J631
+build-deb	Set up job	2026-10-03T10:54:49.7507180Z ##[endgroup]
+build-deb	Set up job	2026-10-03T10:54:49.7507550Z ##[group]Runner Image
+build-deb	Set up job	2026-10-03T10:54:49.7508000Z Image: macos-14-arm64
+build-deb	Set up job	2026-10-03T10:54:49.7508440Z Version: 20260831.0302.1
+build-deb	Set up job	2026-10-03T10:54:49.7509320Z Included Software: https://github.com/actions/runner-images/blob/macos-14-arm64/20260831.0302/images/macos/macos-14-arm64-Readme.md
+build-deb	Set up job	2026-10-03T10:54:49.7510550Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-14-arm64%2F20260831.0302
+build-deb	Set up job	2026-10-03T10:54:49.7511300Z ##[endgroup]
+build-deb	Set up job	2026-10-03T10:54:49.7513780Z ##[group]GITHUB_TOKEN Permissions
+build-deb	Set up job	2026-10-03T10:54:49.7532530Z Contents: read
+build-deb	Set up job	2026-10-03T10:54:49.7533890Z Metadata: read
+build-deb	Set up job	2026-10-03T10:54:49.7539460Z Packages: read
+build-deb	Set up job	2026-10-03T10:54:49.7539980Z ##[endgroup]
+build-deb	Set up job	2026-10-03T10:54:49.7584740Z Secret source: Actions
+build-deb	Set up job	2026-10-03T10:54:49.7589150Z Cache mode: write
+build-deb	Set up job	2026-10-03T10:54:49.7589860Z Prepare workflow directory
+build-deb	Set up job	2026-10-03T10:54:49.8279930Z Prepare all required actions
+build-deb	Set up job	2026-10-03T10:54:49.8335570Z Getting action download info
+build-deb	Set up job	2026-10-03T10:54:50.2591900Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+build-deb	Set up job	2026-10-03T10:54:51.2044030Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+build-deb	Set up job	2026-10-03T10:54:51.4763730Z Complete job name: build-deb
+build-deb	Checkout	﻿2026-10-03T10:54:51.5302340Z ##[group]Run actions/checkout@v4
+build-deb	Checkout	2026-10-03T10:54:51.5303290Z with:
+build-deb	Checkout	2026-10-03T10:54:51.5303680Z   repository: ssx-computer/ios-agent
+build-deb	Checkout	2026-10-03T10:54:51.5307140Z   token: ***
+build-deb	Checkout	2026-10-03T10:54:51.5307500Z   ssh-strict: true
+build-deb	Checkout	2026-10-03T10:54:51.5307860Z   ssh-user: git
+build-deb	Checkout	2026-10-03T10:54:51.5308220Z   persist-credentials: true
+build-deb	Checkout	2026-10-03T10:54:51.5308910Z   clean: true
+build-deb	Checkout	2026-10-03T10:54:51.5309400Z   sparse-checkout-cone-mode: true
+build-deb	Checkout	2026-10-03T10:54:51.5309880Z   fetch-depth: 1
+build-deb	Checkout	2026-10-03T10:54:51.5310240Z   fetch-tags: false
+build-deb	Checkout	2026-10-03T10:54:51.5310590Z   show-progress: true
+build-deb	Checkout	2026-10-03T10:54:51.5310960Z   lfs: false
+build-deb	Checkout	2026-10-03T10:54:51.5311310Z   submodules: false
+build-deb	Checkout	2026-10-03T10:54:51.5311790Z   set-safe-directory: true
+build-deb	Checkout	2026-10-03T10:54:51.5312210Z   allow-unsafe-pr-checkout: false
+build-deb	Checkout	2026-10-03T10:54:51.5312870Z ##[endgroup]
+build-deb	Checkout	2026-10-03T10:54:51.6654410Z Syncing repository: ssx-computer/ios-agent
+build-deb	Checkout	2026-10-03T10:54:51.6656190Z ##[group]Getting Git version info
+build-deb	Checkout	2026-10-03T10:54:51.6656940Z Working directory is '/Users/runner/work/ios-agent/ios-agent'
+build-deb	Checkout	2026-10-03T10:54:51.6658280Z [command]/opt/homebrew/bin/git version
+build-deb	Checkout	2026-10-03T10:54:51.6838600Z git version 2.55.0
+build-deb	Checkout	2026-10-03T10:54:51.6850560Z ##[endgroup]
+build-deb	Checkout	2026-10-03T10:54:51.6856640Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/757a65b2-0824-498c-893f-b07e690c0010/.gitconfig'
+build-deb	Checkout	2026-10-03T10:54:51.6863320Z Temporarily overriding HOME='/Users/runner/work/_temp/757a65b2-0824-498c-893f-b07e690c0010' before making global git config changes
+build-deb	Checkout	2026-10-03T10:54:51.6864410Z Adding repository directory to the temporary git global config as a safe directory
+build-deb	Checkout	2026-10-03T10:54:51.6866550Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/ios-agent/ios-agent
+build-deb	Checkout	2026-10-03T10:54:51.6949130Z Deleting the contents of '/Users/runner/work/ios-agent/ios-agent'
+build-deb	Checkout	2026-10-03T10:54:51.6951690Z ##[group]Initializing the repository
+build-deb	Checkout	2026-10-03T10:54:51.6955630Z [command]/opt/homebrew/bin/git init /Users/runner/work/ios-agent/ios-agent
+build-deb	Checkout	2026-10-03T10:54:51.7127360Z hint: Using 'master' as the name for the initial branch. This default branch name
+build-deb	Checkout	2026-10-03T10:54:51.7128390Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build-deb	Checkout	2026-10-03T10:54:51.7129450Z hint: to use in all of your new repositories, which will suppress this warning,
+build-deb	Checkout	2026-10-03T10:54:51.7130430Z hint: call:
+build-deb	Checkout	2026-10-03T10:54:51.7130780Z hint:
+build-deb	Checkout	2026-10-03T10:54:51.7131240Z hint: 	git config --global init.defaultBranch <name>
+build-deb	Checkout	2026-10-03T10:54:51.7131740Z hint:
+build-deb	Checkout	2026-10-03T10:54:51.7132240Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build-deb	Checkout	2026-10-03T10:54:51.7133000Z hint: 'development'. The just-created branch can be renamed via this command:
+build-deb	Checkout	2026-10-03T10:54:51.7133620Z hint:
+build-deb	Checkout	2026-10-03T10:54:51.7133970Z hint: 	git branch -m <name>
+build-deb	Checkout	2026-10-03T10:54:51.7134370Z hint:
+build-deb	Checkout	2026-10-03T10:54:51.7134930Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build-deb	Checkout	2026-10-03T10:54:51.7135940Z Initialized empty Git repository in /Users/runner/work/ios-agent/ios-agent/.git/
+build-deb	Checkout	2026-10-03T10:54:51.7137690Z [command]/opt/homebrew/bin/git remote add origin https://github.com/ssx-computer/ios-agent
+build-deb	Checkout	2026-10-03T10:54:51.7188230Z ##[endgroup]
+build-deb	Checkout	2026-10-03T10:54:51.7188950Z ##[group]Disabling automatic garbage collection
+build-deb	Checkout	2026-10-03T10:54:51.7190520Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+build-deb	Checkout	2026-10-03T10:54:51.7227560Z ##[endgroup]
+build-deb	Checkout	2026-10-03T10:54:51.7228210Z ##[group]Setting up auth
+build-deb	Checkout	2026-10-03T10:54:51.7232050Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-deb	Checkout	2026-10-03T10:54:51.7272250Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-deb	Checkout	2026-10-03T10:54:51.7986790Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-deb	Checkout	2026-10-03T10:54:51.8029130Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-deb	Checkout	2026-10-03T10:54:51.8614070Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-deb	Checkout	2026-10-03T10:54:51.8780230Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-deb	Checkout	2026-10-03T10:54:51.9284760Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build-deb	Checkout	2026-10-03T10:54:51.9342020Z ##[endgroup]
+build-deb	Checkout	2026-10-03T10:54:51.9342790Z ##[group]Fetching the repository
+build-deb	Checkout	2026-10-03T10:54:51.9347160Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a1bcac5f90c32bdf98fa3c43a24643c7e8388e53:refs/remotes/origin/main
+build-deb	Checkout	2026-10-03T10:54:52.4256920Z From https://github.com/ssx-computer/ios-agent
+build-deb	Checkout	2026-10-03T10:54:52.4265930Z  * [new ref]         a1bcac5f90c32bdf98fa3c43a24643c7e8388e53 -> origin/main
+build-deb	Checkout	2026-10-03T10:54:52.4306560Z ##[endgroup]
+build-deb	Checkout	2026-10-03T10:54:52.4356300Z ##[group]Determining the checkout info
+build-deb	Checkout	2026-10-03T10:54:52.4376370Z ##[endgroup]
+build-deb	Checkout	2026-10-03T10:54:52.4399270Z [command]/opt/homebrew/bin/git sparse-checkout disable
+build-deb	Checkout	2026-10-03T10:54:52.4403760Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+build-deb	Checkout	2026-10-03T10:54:52.4480080Z ##[group]Checking out the ref
+build-deb	Checkout	2026-10-03T10:54:52.4482070Z [command]/opt/homebrew/bin/git checkout --progress --force -B main refs/remotes/origin/main
+build-deb	Checkout	2026-10-03T10:54:52.4827220Z Switched to a new branch 'main'
+build-deb	Checkout	2026-10-03T10:54:52.4833600Z branch 'main' set up to track 'origin/main'.
+build-deb	Checkout	2026-10-03T10:54:52.4836640Z ##[endgroup]
+build-deb	Checkout	2026-10-03T10:54:52.4940710Z [command]/opt/homebrew/bin/git log -1 --format=%H
+build-deb	Checkout	2026-10-03T10:54:52.5013020Z a1bcac5f90c32bdf98fa3c43a24643c7e8388e53
+build-deb	Checkout theos (with vendor submodules)	﻿2026-10-03T10:54:52.5434100Z ##[group]Run actions/checkout@v4
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5434980Z with:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5436040Z   repository: theos/theos
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5436750Z   path: theos
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5437360Z   fetch-depth: 1
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5438000Z   submodules: recursive
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5445980Z   token: ***
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5446830Z   ssh-strict: true
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5447510Z   ssh-user: git
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5448170Z   persist-credentials: true
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5448960Z   clean: true
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5449600Z   sparse-checkout-cone-mode: true
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5450920Z   fetch-tags: false
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5451700Z   show-progress: true
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5452480Z   lfs: false
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5453140Z   set-safe-directory: true
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5453900Z   allow-unsafe-pr-checkout: false
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.5454680Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6515690Z Syncing repository: theos/theos
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6518800Z ##[group]Getting Git version info
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6520500Z Working directory is '/Users/runner/work/ios-agent/ios-agent/theos'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6555250Z [command]/opt/homebrew/bin/git version
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6602850Z git version 2.55.0
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6613480Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6620770Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/1fbe86d5-5954-402d-a43c-c926bf59dd6a/.gitconfig'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6628770Z Temporarily overriding HOME='/Users/runner/work/_temp/1fbe86d5-5954-402d-a43c-c926bf59dd6a' before making global git config changes
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6631030Z Adding repository directory to the temporary git global config as a safe directory
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6633030Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/ios-agent/ios-agent/theos
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6677930Z ##[group]Initializing the repository
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6680930Z [command]/opt/homebrew/bin/git init /Users/runner/work/ios-agent/ios-agent/theos
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6761580Z hint: Using 'master' as the name for the initial branch. This default branch name
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6765610Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6768260Z hint: to use in all of your new repositories, which will suppress this warning,
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6769620Z hint: call:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6770320Z hint:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6771060Z hint: 	git config --global init.defaultBranch <name>
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6772120Z hint:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6773020Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6776430Z hint: 'development'. The just-created branch can be renamed via this command:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6777680Z hint:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6778300Z hint: 	git branch -m <name>
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6779080Z hint:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6780040Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6781710Z Initialized empty Git repository in /Users/runner/work/ios-agent/ios-agent/theos/.git/
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6784730Z [command]/opt/homebrew/bin/git remote add origin https://github.com/theos/theos
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6821970Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6824830Z ##[group]Disabling automatic garbage collection
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6827480Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6874180Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6876160Z ##[group]Setting up auth
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6877450Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.6917280Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.7597280Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.7667020Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.8486660Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.8531420Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.9148830Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.9204860Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.9206480Z ##[group]Determining the default branch
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:52.9207650Z Retrieving the default branch name
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.2438660Z Default branch 'master'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.2535120Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.2640180Z ##[group]Fetching the repository
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.2743610Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +refs/heads/master:refs/remotes/origin/master
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7174610Z From https://github.com/theos/theos
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7175820Z  * [new branch]      master     -> origin/master
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7179350Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7180610Z ##[group]Determining the checkout info
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7182060Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7184850Z [command]/opt/homebrew/bin/git sparse-checkout disable
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7250690Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7303100Z ##[group]Checking out the ref
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7305900Z [command]/opt/homebrew/bin/git checkout --progress --force -B master refs/remotes/origin/master
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7636740Z Reset branch 'master'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7638570Z branch 'master' set up to track 'origin/master'.
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7642750Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7644050Z ##[group]Setting up auth for fetching submodules
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7654190Z [command]/opt/homebrew/bin/git config --global http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7728880Z [command]/opt/homebrew/bin/git config --global --unset-all url.https://github.com/.insteadOf
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7804520Z [command]/opt/homebrew/bin/git config --global --add url.https://github.com/.insteadOf git@github.com:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7877950Z [command]/opt/homebrew/bin/git config --global --add url.https://github.com/.insteadOf org-201321695@github.com:
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7927940Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7929250Z ##[group]Fetching submodules
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.7941540Z [command]/opt/homebrew/bin/git submodule sync --recursive
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.8528400Z [command]/opt/homebrew/bin/git -c protocol.version=2 submodule update --init --force --depth=1 --recursive
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:53.9523580Z Submodule 'vendor/dm.pl' (https://github.com/theos/dm.pl.git) registered for path 'vendor/dm.pl'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.0025260Z Submodule 'vendor/include' (https://github.com/theos/headers.git) registered for path 'vendor/include'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.0097540Z Submodule 'vendor/lib' (https://github.com/theos/lib.git) registered for path 'vendor/lib'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.0106520Z Submodule 'vendor/logos' (https://github.com/theos/logos.git) registered for path 'vendor/logos'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.0127390Z Submodule 'vendor/nic' (https://github.com/theos/nic.git) registered for path 'vendor/nic'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.0133620Z Submodule 'vendor/orion' (https://github.com/theos/orion.git) registered for path 'vendor/orion'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.0145320Z Submodule 'vendor/swift-support' (https://github.com/theos/swift-support.git) registered for path 'vendor/swift-support'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.0163120Z Submodule 'vendor/templates' (https://github.com/theos/templates.git) registered for path 'vendor/templates'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.0430670Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/dm.pl'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.4293180Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/include'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:54.8951240Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/lib'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:55.3799380Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/logos'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:55.8130260Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/nic'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:56.2092670Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/orion'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:56.6943230Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/swift-support'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.1468530Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/templates'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.6187030Z Submodule path 'vendor/dm.pl': checked out 'd9a3b72e274226dd2823c0a7c1d6d05099f4f51c'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.7156910Z Submodule path 'vendor/include': checked out '13c1f17176d7efe6871551cd69a75b71ac4eeaf1'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.7580960Z Submodule path 'vendor/lib': checked out '6f2af307568e6b8c52181d26314b0cd69ffaf188'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.7871000Z Submodule path 'vendor/logos': checked out '777925d1add4ee3485a2432a6f6d5e3ded59de7b'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.8159750Z Submodule path 'vendor/nic': checked out '4e7adcbeac2e4636b91e2f76341adfe4c4d0ceec'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.8529900Z Submodule path 'vendor/orion': checked out '762159dc214d5aafa2edfc7554c659fc3c658b5b'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.8577070Z Submodule 'fishhook' (https://github.com/facebook/fishhook.git) registered for path 'vendor/orion/fishhook'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:57.8652700Z Cloning into '/Users/runner/work/ios-agent/ios-agent/theos/vendor/orion/fishhook'...
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.3020380Z Submodule path 'vendor/orion/fishhook': checked out 'aadc161ac3b80db07a9908851839a17ba63a9eb1'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.3324930Z Submodule path 'vendor/swift-support': checked out '4cf59ff04cdb2ceb27ea2228753e0497297b6182'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.3749670Z Submodule path 'vendor/templates': checked out '6c3944e281c4726f1383755d0fbb642840312d28'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.3812680Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local gc.auto 0
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.4373200Z Entering 'vendor/dm.pl'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.4474800Z Entering 'vendor/include'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.4572750Z Entering 'vendor/lib'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.4673690Z Entering 'vendor/logos'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.4768840Z Entering 'vendor/nic'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.4868480Z Entering 'vendor/orion'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.4970100Z Entering 'vendor/orion/fishhook'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.5072550Z Entering 'vendor/swift-support'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.5163860Z Entering 'vendor/templates'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.5267690Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.5268330Z ##[group]Persisting credentials for submodules
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.5271990Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'url\.https\:\/\/github\.com\/\.insteadOf' && git config --local --unset-all 'url.https://github.com/.insteadOf' || :"
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.5738870Z Entering 'vendor/dm.pl'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.5856980Z Entering 'vendor/include'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.5966240Z Entering 'vendor/lib'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.6079030Z Entering 'vendor/logos'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.6189910Z Entering 'vendor/nic'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.6313370Z Entering 'vendor/orion'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.6430250Z Entering 'vendor/orion/fishhook'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.6552950Z Entering 'vendor/swift-support'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.6695080Z Entering 'vendor/templates'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.6880290Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local 'http.https://github.com/.extraheader' 'AUTHORIZATION: basic ***' && git config --local --show-origin --name-only --get-regexp remote.origin.url"
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.7466170Z Entering 'vendor/dm.pl'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.7643760Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/dm.pl/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.7690480Z Entering 'vendor/include'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.7829100Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/include/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.7879220Z Entering 'vendor/lib'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8040080Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/lib/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8101260Z Entering 'vendor/logos'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8268570Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/logos/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8310860Z Entering 'vendor/nic'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8426760Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/nic/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8469110Z Entering 'vendor/orion'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8591830Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/orion/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8632480Z Entering 'vendor/orion/fishhook'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8767790Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/orion/modules/fishhook/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8820110Z Entering 'vendor/swift-support'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.8958310Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/swift-support/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.9005670Z Entering 'vendor/templates'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.9166840Z file:/Users/runner/work/ios-agent/ios-agent/theos/.git/modules/vendor/templates/config	remote.origin.url
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.9273230Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --add 'url.https://github.com/.insteadOf' 'git@github.com:'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.9848680Z Entering 'vendor/dm.pl'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:58.9965630Z Entering 'vendor/include'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.0089320Z Entering 'vendor/lib'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.0208740Z Entering 'vendor/logos'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.0331060Z Entering 'vendor/nic'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.0443760Z Entering 'vendor/orion'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.0552910Z Entering 'vendor/orion/fishhook'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.0665930Z Entering 'vendor/swift-support'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.0778540Z Entering 'vendor/templates'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.0898860Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --add 'url.https://github.com/.insteadOf' 'org-201321695@github.com:'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.1420380Z Entering 'vendor/dm.pl'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.1539100Z Entering 'vendor/include'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.1657890Z Entering 'vendor/lib'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.1768650Z Entering 'vendor/logos'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.1881600Z Entering 'vendor/nic'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.1991830Z Entering 'vendor/orion'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.2099540Z Entering 'vendor/orion/fishhook'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.2262070Z Entering 'vendor/swift-support'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.2451990Z Entering 'vendor/templates'
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.2594520Z ##[endgroup]
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.2666500Z [command]/opt/homebrew/bin/git log -1 --format=%H
+build-deb	Checkout theos (with vendor submodules)	2026-10-03T10:54:59.2723560Z dd5c14bb9d91311e221d51b5bfb8c9e5948156db
+build-deb	Checkout theos sdks	﻿2026-10-03T10:54:59.2882430Z ##[group]Run actions/checkout@v4
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2882660Z with:
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2882830Z   repository: theos/sdks
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2883030Z   path: theos/sdks
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2883230Z   fetch-depth: 1
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2885340Z   token: ***
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2885490Z   ssh-strict: true
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2885650Z   ssh-user: git
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2885800Z   persist-credentials: true
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2885990Z   clean: true
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2886150Z   sparse-checkout-cone-mode: true
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2886390Z   fetch-tags: false
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2886550Z   show-progress: true
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2886720Z   lfs: false
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2886860Z   submodules: false
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2887090Z   set-safe-directory: true
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2887290Z   allow-unsafe-pr-checkout: false
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.2887500Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3832900Z Syncing repository: theos/sdks
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3833470Z ##[group]Getting Git version info
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3833780Z Working directory is '/Users/runner/work/ios-agent/ios-agent/theos/sdks'
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3855210Z [command]/opt/homebrew/bin/git version
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3901330Z git version 2.55.0
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3913090Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3918730Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/121acd52-0b65-4dec-980f-dcfc3e17faa9/.gitconfig'
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3925450Z Temporarily overriding HOME='/Users/runner/work/_temp/121acd52-0b65-4dec-980f-dcfc3e17faa9' before making global git config changes
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3926080Z Adding repository directory to the temporary git global config as a safe directory
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3929390Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/ios-agent/ios-agent/theos/sdks
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3983620Z Deleting the contents of '/Users/runner/work/ios-agent/ios-agent/theos/sdks'
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3990750Z ##[group]Initializing the repository
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.3993910Z [command]/opt/homebrew/bin/git init /Users/runner/work/ios-agent/ios-agent/theos/sdks
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4074330Z hint: Using 'master' as the name for the initial branch. This default branch name
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4075170Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4075890Z hint: to use in all of your new repositories, which will suppress this warning,
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4076320Z hint: call:
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4076470Z hint:
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4076680Z hint: 	git config --global init.defaultBranch <name>
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4076920Z hint:
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4077170Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4077570Z hint: 'development'. The just-created branch can be renamed via this command:
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4077880Z hint:
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4078030Z hint: 	git branch -m <name>
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4078220Z hint:
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4078480Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4078990Z Initialized empty Git repository in /Users/runner/work/ios-agent/ios-agent/theos/sdks/.git/
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4082090Z [command]/opt/homebrew/bin/git remote add origin https://github.com/theos/sdks
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4131970Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4132350Z ##[group]Disabling automatic garbage collection
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4135370Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4181690Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4182040Z ##[group]Setting up auth
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4187040Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4231390Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4799690Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.4843800Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.5423810Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.5473110Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.6161780Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.6217580Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.6218250Z ##[group]Determining the default branch
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.6219450Z Retrieving the default branch name
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.9183600Z Default branch 'master'
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.9184390Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.9184860Z ##[group]Fetching the repository
+build-deb	Checkout theos sdks	2026-10-03T10:54:59.9193170Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +refs/heads/master:refs/remotes/origin/master
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7082480Z From https://github.com/theos/sdks
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7083080Z  * [new branch]        master     -> origin/master
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7085970Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7086420Z ##[group]Determining the checkout info
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7087910Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7092890Z [command]/opt/homebrew/bin/git sparse-checkout disable
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7154660Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7202270Z ##[group]Checking out the ref
+build-deb	Checkout theos sdks	2026-10-03T10:55:17.7205210Z [command]/opt/homebrew/bin/git checkout --progress --force -B master refs/remotes/origin/master
+build-deb	Checkout theos sdks	2026-10-03T10:55:18.8386440Z Updating files:  10% (5926/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:18.9284230Z Updating files:  11% (6192/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.0281490Z Updating files:  12% (6755/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.1393230Z Updating files:  13% (7318/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.2868230Z Updating files:  14% (7881/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.3751610Z Updating files:  15% (8443/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.4678080Z Updating files:  16% (9006/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.5497090Z Updating files:  17% (9569/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.6191300Z Updating files:  18% (10132/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.7137640Z Updating files:  19% (10695/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.7757850Z Updating files:  20% (11258/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.8097550Z Updating files:  20% (11677/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:19.9721860Z Updating files:  21% (11821/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.0516510Z Updating files:  22% (12383/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.1293520Z Updating files:  23% (12946/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.3075790Z Updating files:  24% (13509/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.3813420Z Updating files:  25% (14072/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.4634740Z Updating files:  26% (14635/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.5378320Z Updating files:  27% (15198/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.6078010Z Updating files:  28% (15761/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.7310780Z Updating files:  29% (16323/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.7752520Z Updating files:  30% (16886/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.8516320Z Updating files:  30% (17039/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:20.9273100Z Updating files:  31% (17449/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.0035020Z Updating files:  32% (18012/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.0743210Z Updating files:  33% (18575/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.1334800Z Updating files:  34% (19138/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.1834200Z Updating files:  35% (19701/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.2467620Z Updating files:  36% (20263/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.3133170Z Updating files:  37% (20826/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.4493000Z Updating files:  38% (21389/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.6801140Z Updating files:  39% (21952/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.7756000Z Updating files:  40% (22515/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.7948890Z Updating files:  40% (22905/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.8667520Z Updating files:  41% (23078/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.9385760Z Updating files:  42% (23641/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:21.9991500Z Updating files:  43% (24203/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.0534770Z Updating files:  44% (24766/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.1133480Z Updating files:  45% (25329/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.1896740Z Updating files:  46% (25892/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.2913370Z Updating files:  47% (26455/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.4690570Z Updating files:  48% (27018/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.6126240Z Updating files:  49% (27581/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.7055320Z Updating files:  50% (28143/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.7763230Z Updating files:  51% (28706/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.7908280Z Updating files:  51% (29177/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.8496030Z Updating files:  52% (29269/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.9091720Z Updating files:  53% (29832/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:22.9581240Z Updating files:  54% (30395/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:23.0142050Z Updating files:  55% (30958/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:23.0862660Z Updating files:  56% (31521/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:23.1515300Z Updating files:  57% (32084/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:23.3998800Z Updating files:  58% (32646/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:23.6917000Z Updating files:  59% (33209/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:23.7840790Z Updating files:  60% (33772/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:23.9163810Z Updating files:  60% (33989/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.0596780Z Updating files:  61% (34335/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.2005610Z Updating files:  62% (34898/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.3208090Z Updating files:  63% (35461/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.4251280Z Updating files:  64% (36024/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.5147740Z Updating files:  65% (36586/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.6114750Z Updating files:  66% (37149/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.6649920Z Updating files:  67% (37712/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.7244280Z Updating files:  68% (38275/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.7786370Z Updating files:  69% (38838/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.8429730Z Updating files:  69% (39183/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:24.9735930Z Updating files:  70% (39401/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:25.1028090Z Updating files:  71% (39964/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:25.2766880Z Updating files:  72% (40526/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:25.5539230Z Updating files:  73% (41089/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:25.7002150Z Updating files:  74% (41652/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:25.7649560Z Updating files:  75% (42215/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:25.7777410Z Updating files:  76% (42778/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:25.8461250Z Updating files:  76% (42902/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.0804200Z Updating files:  77% (43341/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.2611300Z Updating files:  78% (43904/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.4214410Z Updating files:  79% (44466/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.5083120Z Updating files:  80% (45029/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.5988920Z Updating files:  81% (45592/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.7266370Z Updating files:  82% (46155/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.7782750Z Updating files:  83% (46718/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.8023780Z Updating files:  83% (47102/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.8765710Z Updating files:  84% (47281/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:26.9597470Z Updating files:  85% (47844/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:27.0599960Z Updating files:  86% (48406/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:27.1580950Z Updating files:  87% (48969/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:27.2997720Z Updating files:  88% (49532/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:27.4193650Z Updating files:  89% (50095/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:27.5011020Z Updating files:  90% (50658/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:27.6580050Z Updating files:  91% (51221/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:27.7776990Z Updating files:  92% (51784/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:27.7845510Z Updating files:  92% (52309/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.0214450Z Updating files:  93% (52346/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.1505790Z Updating files:  94% (52909/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.2644420Z Updating files:  95% (53472/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.4033100Z Updating files:  96% (54035/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.5645640Z Updating files:  97% (54598/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.6246150Z Updating files:  98% (55161/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.7081350Z Updating files:  99% (55724/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.7089190Z Updating files: 100% (56286/56286)
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.7089460Z Updating files: 100% (56286/56286), done.
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.7818790Z Reset branch 'master'
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.7822310Z branch 'master' set up to track 'origin/master'.
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.7864630Z ##[endgroup]
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.7967620Z [command]/opt/homebrew/bin/git log -1 --format=%H
+build-deb	Checkout theos sdks	2026-10-03T10:55:28.8023210Z 0222fd5413cf4b9af096f37b4621afa2688572f7
+build-deb	Install theos	﻿2026-10-03T10:55:28.8190220Z ##[group]Run set -e
+build-deb	Install theos	2026-10-03T10:55:28.8190640Z ^[[36;1mset -e^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8190890Z ^[[36;1m# ldid/xz 是 make package 签名/打包必需（theos bin/ 内不带）^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8191370Z ^[[36;1mbrew install ldid xz 2>/dev/null || true^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8191650Z ^[[36;1mmv theos "$HOME/theos"^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8191870Z ^[[36;1mcd "$HOME/theos"^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8192330Z ^[[36;1m# modern theos 无 autogen/configure：clone --recursive 即用；此步兑底补拉 vendor^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8192770Z ^[[36;1mgit submodule update --init --recursive --depth=1 2>/dev/null || true^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8193270Z ^[[36;1mtest -f makefiles/common.mk || { echo "vendor 缺失："; ls vendor; exit 1; }^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8193770Z ^[[36;1mtest -f sdks/iPhoneOS14.5.sdk/SDKSettings.json || ls sdks | head -30^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8194620Z ^[[36;1mecho "THEOS=$HOME/theos" >> "$GITHUB_ENV"^[[0m
+build-deb	Install theos	2026-10-03T10:55:28.8512320Z shell: /bin/bash -e {0}
+build-deb	Install theos	2026-10-03T10:55:28.8512540Z ##[endgroup]
+build-deb	Install theos	2026-10-03T10:55:31.7461390Z ^[[34m==>^[[0m ^[[1mWould install 1 formula:^[[0m
+build-deb	Install theos	2026-10-03T10:55:31.7462520Z ldid
+build-deb	Install theos	2026-10-03T10:55:31.7966080Z ^[[34m==>^[[0m ^[[1mWould install 1 dependency for ldid:^[[0m
+build-deb	Install theos	2026-10-03T10:55:31.7966560Z libplist
+build-deb	Install theos	2026-10-03T10:55:32.1274070Z ^[[32m==>^[[0m ^[[1mInstalling ldid dependency: ^[[32mlibplist^[[39m^[[0m
+build-deb	Install theos	2026-10-03T10:55:32.1388090Z ^[[34m==>^[[0m ^[[1mPouring libplist--2.7.0.arm64_sonoma.bottle.tar.gz^[[0m
+build-deb	Install theos	2026-10-03T10:55:32.2653170Z 🍺  /opt/homebrew/Cellar/libplist/2.7.0: 32 files, 606.6KB
+build-deb	Install theos	2026-10-03T10:55:32.2662580Z ^[[32m==>^[[0m ^[[1mInstalling ^[[32mldid^[[39m^[[0m
+build-deb	Install theos	2026-10-03T10:55:32.2672170Z ^[[34m==>^[[0m ^[[1mPouring ldid--2.1.5_1.arm64_sonoma.bottle.1.tar.gz^[[0m
+build-deb	Install theos	2026-10-03T10:55:32.3077960Z 🍺  /opt/homebrew/Cellar/ldid/2.1.5_1: 6 files, 270.1KB
+build-deb	Build .deb	﻿2026-10-03T10:55:32.4364080Z ##[group]Run set -e
+build-deb	Build .deb	2026-10-03T10:55:32.4364330Z ^[[36;1mset -e^[[0m
+build-deb	Build .deb	2026-10-03T10:55:32.4364590Z ^[[36;1mcd tweak^[[0m
+build-deb	Build .deb	2026-10-03T10:55:32.4364830Z ^[[36;1mmake clean package FINALPACKAGE=1 2>&1 | tee build.log^[[0m
+build-deb	Build .deb	2026-10-03T10:55:32.4365120Z ^[[36;1mls -la packages/*.deb^[[0m
+build-deb	Build .deb	2026-10-03T10:55:32.4365450Z ^[[36;1mtest -f packages/com.ssx.iosagent_*.deb || { tail -100 build.log; exit 1; }^[[0m
+build-deb	Build .deb	2026-10-03T10:55:32.4434120Z shell: /bin/bash -e {0}
+build-deb	Build .deb	2026-10-03T10:55:32.4434350Z env:
+build-deb	Build .deb	2026-10-03T10:55:32.4434600Z   THEOS: /Users/runner/theos
+build-deb	Build .deb	2026-10-03T10:55:32.4434870Z ##[endgroup]
+build-deb	Build .deb	2026-10-03T10:55:37.8306620Z ^[[0;36m==> ^[[1;39mCleaning…^[[m
+build-deb	Build .deb	2026-10-03T10:55:37.9077970Z ^[[0;36m==> ^[[1;36mNotice:^[[m Build may be slow as Theos isn’t using all available CPU cores on this computer. Consider upgrading GNU Make: https://theos.dev/docs/parallel-building
+build-deb	Build .deb	2026-10-03T10:55:38.0417900Z ^[[1;31m> ^[[1;3;39mMaking all for tweak iosagent…^[[m
+build-deb	Build .deb	2026-10-03T10:55:39.4355770Z ^[[0;31m==> ^[[1;39mPreprocessing Tweak.xm…^[[m
+build-deb	Build .deb	2026-10-03T10:55:39.5840840Z ^[[0;32m==> ^[[1;39mCompiling Tweak.xm (arm64)…^[[m
+build-deb	Build .deb	2026-10-03T10:55:40.9183270Z ^[[1mTweak.xm:254:29: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mperformSelector may cause a leak because its selector is unknown [-Warc-performSelector-leaks]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9184220Z                     [(id)fr performSelector:ins withObject:text];
+build-deb	Build .deb	2026-10-03T10:55:40.9190150Z ^[[0;1;32m                            ^
+build-deb	Build .deb	2026-10-03T10:55:40.9190630Z ^[[0m^[[1mTweak.xm:254:45: ^[[0m^[[0;1;30mnote: ^[[0mused here^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9191110Z                     [(id)fr performSelector:ins withObject:text];
+build-deb	Build .deb	2026-10-03T10:55:40.9191520Z ^[[0;1;32m                                            ^
+build-deb	Build .deb	2026-10-03T10:55:40.9192180Z ^[[0m^[[1mTweak.xm:247:23: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1munused variable 'w' [-Wunused-variable]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9192700Z             UIWindow *w = keyWin();
+build-deb	Build .deb	2026-10-03T10:55:40.9193020Z ^[[0;1;32m                      ^
+build-deb	Build .deb	2026-10-03T10:55:40.9252600Z ^[[0m^[[1mTweak.xm:375:29: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mconversion from string literal to 'char *' is deprecated [-Wc++11-compat-deprecated-writable-strings]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9253400Z         char *shArgv[4] = { "/bin/sh", "-c", (char *)[cmd UTF8String], 0 };
+build-deb	Build .deb	2026-10-03T10:55:40.9253920Z ^[[0;1;32m                            ^
+build-deb	Build .deb	2026-10-03T10:55:40.9254640Z ^[[0m^[[1mTweak.xm:375:40: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mconversion from string literal to 'char *' is deprecated [-Wc++11-compat-deprecated-writable-strings]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9255300Z         char *shArgv[4] = { "/bin/sh", "-c", (char *)[cmd UTF8String], 0 };
+build-deb	Build .deb	2026-10-03T10:55:40.9255710Z ^[[0;1;32m                                       ^
+build-deb	Build .deb	2026-10-03T10:55:40.9256330Z ^[[0m^[[1mTweak.xm:376:29: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mconversion from string literal to 'char *' is deprecated [-Wc++11-compat-deprecated-writable-strings]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9257030Z         char *shEnvp[3] = { "PATH=/usr/bin:/bin:/usr/sbin:/sbin:/var/jb/usr/bin", 0 };
+build-deb	Build .deb	2026-10-03T10:55:40.9257450Z ^[[0;1;32m                            ^
+build-deb	Build .deb	2026-10-03T10:55:40.9568480Z ^[[0m^[[1mTweak.xm:502:53: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mconversion from string literal to 'char *' is deprecated [-Wc++11-compat-deprecated-writable-strings]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9569680Z         char *argv[3] = { (char *)[bin UTF8String], "--daemon", 0 };
+build-deb	Build .deb	2026-10-03T10:55:40.9570240Z ^[[0;1;32m                                                    ^
+build-deb	Build .deb	2026-10-03T10:55:40.9570840Z ^[[0m^[[1mTweak.xm:503:27: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mconversion from string literal to 'char *' is deprecated [-Wc++11-compat-deprecated-writable-strings]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9571730Z         char *envp[5] = { "HOME=/var/mobile", "PATH=/usr/bin:/bin:/usr/sbin:/sbin:/var/jb/usr/bin",
+build-deb	Build .deb	2026-10-03T10:55:40.9572170Z ^[[0;1;32m                          ^
+build-deb	Build .deb	2026-10-03T10:55:40.9572770Z ^[[0m^[[1mTweak.xm:503:47: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mconversion from string literal to 'char *' is deprecated [-Wc++11-compat-deprecated-writable-strings]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9573440Z         char *envp[5] = { "HOME=/var/mobile", "PATH=/usr/bin:/bin:/usr/sbin:/sbin:/var/jb/usr/bin",
+build-deb	Build .deb	2026-10-03T10:55:40.9574510Z ^[[0;1;32m                                              ^
+build-deb	Build .deb	2026-10-03T10:55:40.9575110Z ^[[0m^[[1mTweak.xm:504:26: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mconversion from string literal to 'char *' is deprecated [-Wc++11-compat-deprecated-writable-strings]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9575660Z                          "TERM=dumb", "LANG=C.UTF-8", 0 };
+build-deb	Build .deb	2026-10-03T10:55:40.9575900Z ^[[0;1;32m                         ^
+build-deb	Build .deb	2026-10-03T10:55:40.9576450Z ^[[0m^[[1mTweak.xm:504:39: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mconversion from string literal to 'char *' is deprecated [-Wc++11-compat-deprecated-writable-strings]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:40.9576970Z                          "TERM=dumb", "LANG=C.UTF-8", 0 };
+build-deb	Build .deb	2026-10-03T10:55:40.9577240Z ^[[0;1;32m                                      ^
+build-deb	Build .deb	2026-10-03T10:55:41.2869250Z ^[[0m10 warnings generated.
+build-deb	Build .deb	2026-10-03T10:55:41.3154390Z ^[[0;33m==> ^[[1;39mLinking tweak iosagent (arm64)…^[[m
+build-deb	Build .deb	2026-10-03T10:55:41.5130630Z ld: warning: -multiply_defined is obsolete
+build-deb	Build .deb	2026-10-03T10:55:41.6147430Z ^[[0;34m==> ^[[1;39mGenerating debug symbols for iosagent…^[[m
+build-deb	Build .deb	2026-10-03T10:55:41.7324970Z ^[[0;34m==> ^[[1;39mStripping iosagent (arm64)…^[[m
+build-deb	Build .deb	2026-10-03T10:55:41.7487050Z ^[[0;34m==> ^[[1;39mSigning iosagent…^[[m
+build-deb	Build .deb	2026-10-03T10:55:41.8316990Z ^[[1;31m> ^[[1;3;39mMaking all for tool iosagentd…^[[m
+build-deb	Build .deb	2026-10-03T10:55:42.5322900Z ^[[0;32m==> ^[[1;39mCompiling iosagentd.m (arm64)…^[[m
+build-deb	Build .deb	2026-10-03T10:55:42.8809730Z ^[[1miosagentd.m:60:40: ^[[0m^[[0;1;31merror: ^[[0m^[[1mproperty 'fileExistsAtPath' not found on object of type 'NSFileManager *'^[[0m
+build-deb	Build .deb	2026-10-03T10:55:42.8810310Z     if ([NSFileManager defaultManager].fileExistsAtPath:CFG_FILE) {
+build-deb	Build .deb	2026-10-03T10:55:42.8810700Z ^[[0;1;32m                                       ^
+build-deb	Build .deb	2026-10-03T10:55:42.8811060Z ^[[0m^[[1miosagentd.m:60:56: ^[[0m^[[0;1;31merror: ^[[0m^[[1mexpected ')'^[[0m
+build-deb	Build .deb	2026-10-03T10:55:42.8811440Z     if ([NSFileManager defaultManager].fileExistsAtPath:CFG_FILE) {
+build-deb	Build .deb	2026-10-03T10:55:42.8811790Z ^[[0;1;32m                                                       ^
+build-deb	Build .deb	2026-10-03T10:55:42.8812170Z ^[[0m^[[1miosagentd.m:60:8: ^[[0m^[[0;1;30mnote: ^[[0mto match this '('^[[0m
+build-deb	Build .deb	2026-10-03T10:55:42.8812550Z     if ([NSFileManager defaultManager].fileExistsAtPath:CFG_FILE) {
+build-deb	Build .deb	2026-10-03T10:55:42.8812840Z ^[[0;1;32m       ^
+build-deb	Build .deb	2026-10-03T10:55:42.8857300Z ^[[0m^[[1miosagentd.m:448:27: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1mincompatible pointer types initializing 'NSDictionary *' with an expression of type 'NSString *' [-Wincompatible-pointer-types]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:42.8860740Z             NSDictionary *m = llmCall(messages, tools, &err);
+build-deb	Build .deb	2026-10-03T10:55:42.8861270Z ^[[0;1;32m                          ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+build-deb	Build .deb	2026-10-03T10:55:42.8880630Z ^[[0m^[[1miosagentd.m:764:57: ^[[0m^[[0;1;35mwarning: ^[[0m^[[1m'writeToFile:atomically:' is deprecated: first deprecated in iOS 2.0 - Use -writeToFile:atomically:error: instead [-Wdeprecated-declarations]^[[0m
+build-deb	Build .deb	2026-10-03T10:55:42.8881480Z     [[NSString stringWithFormat:@"%d\n", g_webPortLive] writeToFile:@"/private/tmp/iosagentd.port" atomically:YES];
+build-deb	Build .deb	2026-10-03T10:55:42.8881990Z ^[[0;1;32m                                                        ^
+build-deb	Build .deb	2026-10-03T10:55:42.8883130Z ^[[0m^[[1m/Users/runner/theos/sdks/iPhoneOS14.5.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSString.h:513:1: ^[[0m^[[0;1;30mnote: ^[[0m'writeToFile:atomically:' has been explicitly marked deprecated here^[[0m
+build-deb	Build .deb	2026-10-03T10:55:42.8884280Z - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile API_DEPRECATED("Use -writeToFile:atomically:error: instead", macos(10.0,10.4), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
+build-deb	Build .deb	2026-10-03T10:55:42.8884920Z ^[[0;1;32m^
+build-deb	Build .deb	2026-10-03T10:55:42.9000650Z ^[[0m2 warnings and 2 errors generated.
+build-deb	Build .deb	2026-10-03T10:55:42.9020600Z make[3]: *** [/Users/runner/work/ios-agent/ios-agent/tweak/.theos/obj/arm64/iosagentd.m.6d90252d.o] Error 1
+build-deb	Build .deb	2026-10-03T10:55:42.9021770Z make[2]: *** [/Users/runner/work/ios-agent/ios-agent/tweak/.theos/obj/arm64/iosagentd] Error 2
+build-deb	Build .deb	2026-10-03T10:55:42.9024020Z make[1]: *** [internal-tool-all_] Error 2
+build-deb	Build .deb	2026-10-03T10:55:42.9027290Z make: *** [iosagentd.all.tool.variables] Error 2
+build-deb	Build .deb	2026-10-03T10:55:42.9107260Z ls: packages/*.deb: No such file or directory
+build-deb	Build .deb	2026-10-03T10:55:42.9119480Z ##[error]Process completed with exit code 1.
+build-deb	Upload .deb artifact	﻿2026-10-03T10:55:42.9371330Z ##[group]Run actions/upload-artifact@v4
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9371570Z with:
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9371820Z   name: iosagent-deb
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9372100Z   path: tweak/packages/com.ssx.iosagent_*.deb
+build-deb	Upload .deb artifact	tweak/build.log
+build-deb	Upload .deb artifact	
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9372420Z   if-no-files-found: warn
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9372640Z   compression-level: 6
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9372880Z   overwrite: false
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9373150Z   include-hidden-files: false
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9373380Z env:
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9373570Z   THEOS: /Users/runner/theos
+build-deb	Upload .deb artifact	2026-10-03T10:55:42.9373790Z ##[endgroup]
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.0959140Z (node:3963) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.0961120Z (Use `node --trace-deprecation ...` to show where the warning was created)
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.0995760Z Multiple search paths detected. Calculating the least common ancestor of all paths
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.0997150Z The least common ancestor is /Users/runner/work/ios-agent/ios-agent/tweak. This will be the root directory of the artifact
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.0998260Z With the provided path, there will be 1 file uploaded
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.1005370Z Artifact name is valid!
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.1006170Z Root directory input is valid!
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.4797150Z Beginning upload of artifact content to blob storage
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.5000810Z (node:3963) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.7790590Z Uploaded bytes 1663
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.8552450Z Finished uploading artifact content to blob storage!
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.8555270Z SHA256 digest of uploaded artifact zip is 05d8498c42b455f9baa7d2c195813e9ecd1b7c74a76e88c2ffc2c89477088eef
+build-deb	Upload .deb artifact	2026-10-03T10:55:43.8556710Z Finalizing artifact upload
+build-deb	Upload .deb artifact	2026-10-03T10:55:44.1161040Z Artifact iosagent-deb.zip successfully finalized. Artifact ID 11271808862
+build-deb	Upload .deb artifact	2026-10-03T10:55:44.1162680Z Artifact iosagent-deb has been successfully uploaded! Final size is 1663 bytes. Artifact ID is 11271808862
+build-deb	Upload .deb artifact	2026-10-03T10:55:44.1176080Z Artifact download URL: https://github.com/ssx-computer/ios-agent/actions/runs/37117939603/artifacts/11271808862
+build-deb	Post Checkout theos sdks	﻿2026-10-03T10:55:44.1441560Z Post job cleanup.
+build-deb	Post Checkout theos (with vendor submodules)	﻿2026-10-03T10:55:44.2331920Z Post job cleanup.
+build-deb	Post Checkout	﻿2026-10-03T10:55:44.3175830Z Post job cleanup.
+build-deb	Post Checkout	2026-10-03T10:55:44.3951680Z [command]/opt/homebrew/bin/git version
+build-deb	Post Checkout	2026-10-03T10:55:44.3997100Z git version 2.55.0
+build-deb	Post Checkout	2026-10-03T10:55:44.4014160Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/3860baca-5251-4ea4-bb6d-d87339c5844b/.gitconfig'
+build-deb	Post Checkout	2026-10-03T10:55:44.4021680Z Temporarily overriding HOME='/Users/runner/work/_temp/3860baca-5251-4ea4-bb6d-d87339c5844b' before making global git config changes
+build-deb	Post Checkout	2026-10-03T10:55:44.4022690Z Adding repository directory to the temporary git global config as a safe directory
+build-deb	Post Checkout	2026-10-03T10:55:44.4024600Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/ios-agent/ios-agent
+build-deb	Post Checkout	2026-10-03T10:55:44.4076000Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-deb	Post Checkout	2026-10-03T10:55:44.4124490Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-deb	Post Checkout	2026-10-03T10:55:44.4686300Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-deb	Post Checkout	2026-10-03T10:55:44.4724250Z http.https://github.com/.extraheader
+build-deb	Post Checkout	2026-10-03T10:55:44.4730850Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+build-deb	Post Checkout	2026-10-03T10:55:44.4777540Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-deb	Post Checkout	2026-10-03T10:55:44.5337340Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-deb	Post Checkout	2026-10-03T10:55:44.5383120Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-deb	Complete job	﻿2026-10-03T10:55:44.6036950Z Cleaning up orphan processes
+build-deb	Complete job	2026-10-03T10:55:44.9659910Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
