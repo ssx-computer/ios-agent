@@ -495,6 +495,11 @@ static NSString *const SYSTEM =
     @"破坏性命令（rm -rf、卸载系统组件、重启）先谨慎执行；任务完成时调用 finish。";
 
 static NSString *runGoal(NSString *goal) {
+    if (!g_apiKey || !*g_apiKey || strstr(g_apiKey, "填入")) {
+        NSString *msg = @"未配置外部模型：请用手机 Safari 打开 Web 面板（http://127.0.0.1:80 或 :8080）填写 apiBase/apiKey/model（保存即时生效），或用环境变量 IAGENT_API_BASE / IAGENT_API_KEY / IAGENT_MODEL";
+        printf("\n=== 未配置 ===\n%s\n", [msg UTF8String]);
+        return msg;
+    }
     NSArray *tools = toolDefs();
     @autoreleasepool {
         NSMutableArray *messages = [NSMutableArray arrayWithObject:
@@ -925,8 +930,9 @@ int main(int argc, char **argv) {
         }
         loadConfig();
         if (!g_apiKey || !*g_apiKey || strstr(g_apiKey, "填入")) {
-            fprintf(stderr, "请先配置：iosagentd --setup 然后编辑 /var/mobile/Library/iosagent.json\n");
-            return 1;
+            fprintf(stderr, "[iosagentd] 提示：尚未配置外部模型——不影响启动；\n");
+            fprintf(stderr, "  Web 面板（http://127.0.0.1:80 或 :8080）可在线配置（保存即时生效），或 iosagentd --setup\n");
+            /* 不退出：Web 面板是首配入口（沙盒受限时文件写不进，必须靠面板） */
         }
         if (argc > 1 && !strcmp(argv[1], "--status")) { status(); return 0; }
         webStart(); /* 已有实例占用端口时静默跳过，不致命 */

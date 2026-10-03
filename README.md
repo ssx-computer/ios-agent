@@ -64,6 +64,9 @@ iosagent: spawned iosagentd pid …                    ← SB 自动拉起大脑
 
 ## 三、配置外部模型
 
+**面板即首配入口：agentd 未配置也会常驻运行（Web 面板照常可用），
+直接在面板里填配置，保存即时生效，无需重启任何东西。**
+
 任意终端 App（或 ssh）里：
 
 ```sh
