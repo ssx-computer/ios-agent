@@ -1,0 +1,13 @@
+aggregate.mk
+appex.mk
+application.mk
+bundle.mk
+framework.mk
+library.mk
+null.mk
+rules.mk
+simbltweak.mk
+subproject.mk
+tool.mk
+tweak.mk
+xcodeproj.mk
