@@ -19,7 +19,6 @@
  */
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <UIKit/UIKeyInput.h>
 #import <UserNotifications/UserNotifications.h>
 #import <stdio.h>
 #import <unistd.h>
@@ -247,11 +246,13 @@ static NSDictionary *doType(NSDictionary *p) {
             UIWindow *w = keyWin();
             id fr = [UIApplication sharedApplication].firstResponder;
             BOOL ok = NO;
-            if ([fr conformsToProtocol:@protocol(UIKeyInput)]) {
-                UIKeyInput *ki = (UIKeyInput)fr;
-                if ([ki hasMarkedText]) [ki commitCompositionText];
-                [ki insertText:text];
-                ok = YES;
+            /* UIKeyInput 动态调用（theos/sdks 无该子头文件，编译期不依赖协议） */
+            if (fr) {
+                SEL ins = sel_registerName("insertText:");
+                if ([(id)fr respondsToSelector:ins]) {
+                    [(id)fr performSelector:ins withObject:text];
+                    ok = YES;
+                }
             }
             res = @{@"ok": @YES, @"typed": @(ok)};
         } @catch (NSException *e) {
