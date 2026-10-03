@@ -31,27 +31,38 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <dlfcn.h>
 
-/* roothide 兼容：有 roothide.h 时用 jbroot()（随机化 jbroot），
-   否则退化为 /var/jb 探测。传入路径一律 /usr/... 形式。 */
-#if __has_include(<roothide.h>)
-#import <roothide.h>
-#endif
+/* jbroot 自定位（纯 C，无 roothide.h 依赖，三种环境通用）：
+   Tool(可执行)：dladdr 自己 → <jbroot>/usr/bin/iosagentd → 提取 jbroot。
+   rootful 时为空串；rootless=/var/jb；roothide=随机 jbroot。 */
+static NSString *g_jbRoot = nil;
+
+static NSString *detectJbRoot(void) {
+    if (g_jbRoot) return g_jbRoot;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    Dl_info info;
+    if (dladdr((const void *)&detectJbRoot, &info) && info.dli_fname) {
+        NSString *selfPath = [NSString stringWithUTF8String:info.dli_fname];
+        NSRange ub = [selfPath rangeOfString:@"/usr/bin/"];
+        NSRange le = [selfPath rangeOfString:@"/usr/libexec/"];
+        NSRange ms = [selfPath rangeOfString:@"/Library/MobileSubstrate/"];
+        NSString *root = nil;
+        if (ub.location != NSNotFound)      root = [selfPath substringToIndex:ub.location];
+        else if (le.location != NSNotFound) root = [selfPath substringToIndex:le.location];
+        else if (ms.location != NSNotFound) root = [selfPath substringToIndex:ms.location];
+        if (root.length > 1) { g_jbRoot = root; return root; }
+    }
+    if ([fm fileExistsAtPath:@"/var/jb"]) { g_jbRoot = @"/var/jb"; return g_jbRoot; }
+    g_jbRoot = @"";
+    return g_jbRoot;
+}
 
 static NSString *jbPath(const char *rel) {
-    NSFileManager *fm = [NSFileManager defaultManager];
-#if __has_include(<roothide.h>)
-    const char *p = jbroot(rel);
-    if (p) {
-        NSString *ps = [NSString stringWithUTF8String:p];
-        if ([fm fileExistsAtPath:ps]) return ps;
-    }
-#endif
+    NSString *root = detectJbRoot();
     NSString *relS = [NSString stringWithUTF8String:rel];
-    NSString *rl = [@"/var/jb" stringByAppendingString:relS];
-    if ([fm fileExistsAtPath:rl]) return rl;
-    if ([fm fileExistsAtPath:relS]) return relS;
-    return rl;
+    if (root.length == 0) return relS;
+    return [root stringByAppendingString:relS];
 }
 
 #define CFG_FILE   @"/var/mobile/Library/iosagent.json"

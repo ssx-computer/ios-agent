@@ -31,6 +31,16 @@ jobs:
           submodules: recursive
 
       - name: Checkout theos sdks
+        id: sdks
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: theos/sdks
+          path: theos/sdks
+          fetch-depth: 1
+
+      - name: Retry sdks checkout if failed
+        if: steps.sdks.outcome == 'failure'
         uses: actions/checkout@v4
         with:
           repository: theos/sdks
