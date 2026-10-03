@@ -272,8 +272,10 @@ static NSDictionary *doShot(NSDictionary *p) {
         @try {
             UIWindow *w = keyWin();
             if (!w) { res = @{@"ok": @NO, @"err": @"no window"}; dispatch_semaphore_signal(sem); return; }
-            UIView *snap = [w snapshotViewAfterScreenUpdates:YES];
-            UIImage *img = snap.image;
+            UIGraphicsBeginImageContextWithOptions(w.bounds.size, NO, 0);
+            [w drawViewHierarchyInRect:w.bounds afterScreenUpdates:YES];
+            UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
             if (!img) { res = @{@"ok": @NO, @"err": @"snapshot nil"}; dispatch_semaphore_signal(sem); return; }
             NSData *data = [p[@"jpeg"] boolValue] ? UIImageJPEGRepresentation(img, 0.8)
                                                   : UIImagePNGRepresentation(img);
@@ -283,7 +285,7 @@ static NSDictionary *doShot(NSDictionary *p) {
                     @"scale": @([UIScreen mainScreen].scale),
                     @"w": @([UIScreen mainScreen].bounds.size.width),
                     @"h": @([UIScreen mainScreen].bounds.size.height)};
-        } @catch (id e) {
+        } @catch (NSException *e) {
             res = @{@"ok": @NO, @"err": e.reason ?: @""};
         }
         dispatch_semaphore_signal(sem);
