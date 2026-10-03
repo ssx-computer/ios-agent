@@ -14,7 +14,6 @@ iosagent_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 TOOL_NAME = iosagentd
 iosagentd_FILES = iosagentd.m
 iosagentd_CFLAGS = -fobjc-arc
-iosagentd_LDFLAGS = -lcurl
 
 include $(THEOS)/makefiles/common.mk
 include $(THEOS)/makefiles/tweak.mk

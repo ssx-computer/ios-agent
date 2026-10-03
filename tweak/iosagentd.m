@@ -18,7 +18,6 @@
  *   terminal_send —— 在屏幕终端 App 里发一条命令
  */
 #import <Foundation/Foundation.h>
-#import <curl/curl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,14 +90,7 @@ static BOOL writeConfig(void) {
     return [d writeToFile:CFG_FILE atomically:YES];
 }
 
-/* ---------------- LLM（libcurl，OpenAI 兼容 chat/completions + tools） ---------------- */
-typedef struct { NSMutableData *data; } CB;
-static size_t curlWrite(void *ptr, size_t size, size_t nmemb, void *ud) {
-    CB *c = (CB *)ud;
-    [c->data appendBytes:ptr length:size * nmemb];
-    return size * nmemb;
-}
-
+/* ---------------- LLM（NSURLSession，OpenAI 兼容 chat/completions + tools） ---------------- */
 static NSString *llmCall(NSArray *messages, NSArray *tools, NSString **errMsg) {
     NSDictionary *body = @{ @"model": [NSString stringWithUTF8String:g_model],
                             @"messages": messages,
@@ -106,35 +98,40 @@ static NSString *llmCall(NSArray *messages, NSArray *tools, NSString **errMsg) {
                             @"tool_choice": @"auto",
                             @"temperature": @0.2 };
     NSData *js = [NSJSONSerialization dataWithJSONObject:body options:0 error:NULL];
-    char url[1024];
-    snprintf(url, sizeof url, "%s/chat/completions", g_apiBase);
+    NSString *urlStr = [NSString stringWithFormat:@"%@/chat/completions",
+                        [NSString stringWithUTF8String:g_apiBase]];
+    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
+    req.HTTPMethod = @"POST";
+    [req setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [req setValue:[NSString stringWithFormat:@"Bearer %@", [NSString stringWithUTF8String:g_apiKey]]
+        forHTTPHeaderField:@"Authorization"];
+    req.HTTPBody = js;
+    req.timeoutInterval = 180;
 
-    CURL *c = curl_easy_init();
-    if (!c) { *errMsg = [NSString stringWithUTF8String:"curl init fail"]; return nil; }
-    CB ctx = { [NSMutableData data] };
-    struct curl_slist *h = NULL;
-    char auth[1024];
-    snprintf(auth, sizeof auth, "Authorization: Bearer %s", g_apiKey);
-    h = curl_slist_append(h, "Content-Type: application/json");
-    h = curl_slist_append(h, "Accept: application/json");
-    h = curl_slist_append(h, auth);
-    curl_easy_setopt(c, CURLOPT_URL, url);
-    curl_easy_setopt(c, CURLOPT_TIMEOUT, 180L);
-    curl_easy_setopt(c, CURLOPT_ACCEPTENCODING, "");
-    curl_easy_setopt(c, CURLOPT_HTTPHEADER, h);
-    curl_easy_setopt(c, CURLOPT_POSTFIELDS, js.bytes);
-    curl_easy_setopt(c, CURLOPT_POSTFIELDSIZE, (long)js.length);
-    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, curlWrite);
-    curl_easy_setopt(c, CURLOPT_WRITEDATA, &ctx);
-    CURLcode rc = curl_easy_perform(c);
-    curl_slist_free_all(h);
-    curl_easy_cleanup(c);
-    if (rc != CURLE_OK) { *errMsg = [NSString stringWithFormat:@"curl: %s", curl_easy_strerror(rc)]; return nil; }
-    NSString *raw = [[NSString alloc] initWithData:ctx.data encoding:NSUTF8StringEncoding];
-    NSDictionary *j = [NSJSONSerialization JSONObjectWithData:ctx.data options:0 error:NULL];
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block NSData *respData = nil;
+    __block NSError *respErr = nil;
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:
+                             [NSURLSessionConfiguration defaultSessionConfiguration]];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:req
+        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            respData = data;
+            respErr = error;
+            dispatch_semaphore_signal(sem);
+        }];
+    [task resume];
+    dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(200 * NSEC_PER_SEC)));
+    if (!respData) {
+        *errMsg = respErr.localizedDescription ?: @"LLM 请求超时或失败";
+        return nil;
+    }
+    NSDictionary *j = [NSJSONSerialization JSONObjectWithData:respData options:0 error:NULL];
     if (![j isKindOfClass:[NSDictionary class]]) { *errMsg = @"LLM 返回非 JSON"; return nil; }
     NSArray *choices = j[@"choices"];
-    if (![choices isKindOfClass:[NSArray class]] || !choices.count) { *errMsg = raw; return nil; }
+    if (![choices isKindOfClass:[NSArray class]] || !choices.count) {
+        *errMsg = [[NSString alloc] initWithData:respData encoding:NSUTF8StringEncoding] ?: @"LLM 返回异常";
+        return nil;
+    }
     return choices[0][@"message"];
 }
 
@@ -846,7 +843,6 @@ int main(int argc, char **argv) {
             return 1;
         }
         if (argc > 1 && !strcmp(argv[1], "--status")) { status(); return 0; }
-        curl_global_init(CURL_GLOBAL_DEFAULT);
         webStart(); /* 已有实例占用端口时静默跳过，不致命 */
         if (argc > 1 && !strcmp(argv[1], "--daemon")) { daemonMode(); return 0; }
         if (argc > 1 && !strcmp(argv[1], "--repl"))  { replMode(); return 0; }
