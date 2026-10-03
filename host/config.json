@@ -1,0 +1,14 @@
+{
+  "apiBase": "https://your-external-llm-endpoint/v1",
+  "apiKey": "sk-填外部模型的key",
+  "model": "gpt-4o",
+  "maxSteps": 40,
+  "device": {
+    "host": "iphone.local",
+    "sshPort": 2222,
+    "user": "mobile",
+    "key": "~/.ssh/id_ed25519",
+    "password": null,
+    "terminalBundleId": "com.github.nsshell"
+  }
+}

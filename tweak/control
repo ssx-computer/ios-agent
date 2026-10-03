@@ -1,0 +1,7 @@
+Package: com.ssx.iosagent
+Name: IOSAgent
+Version: 0.1.0
+Architecture: iphone
+Description: On-device AI agent bridge for jailbroken iOS (unix socket + UI event injection)
+Maintainer: ssx
+Author: ssx

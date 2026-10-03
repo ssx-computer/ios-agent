@@ -1,0 +1,54 @@
+# iOSAgent 构建流：macOS + Theos → 单个 .deb（含 Tweak + iosagentd）
+# 产物：com.ssx.iosagent_0.1.0_iphoneos-arm64.deb
+name: build
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "tweak/**"
+      - ".github/**"
+  workflow_dispatch:
+
+jobs:
+  build-deb:
+    runs-on: macos-14
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Xcode license
+        run: |
+          sudo xcodebuild -license accept || true
+          sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install jq (Theos packaging dependency)
+        run: |
+          brew install jq 2>/dev/null || true
+
+      - name: Setup Theos
+        run: |
+          git clone --depth=1 https://github.com/theos/theos.git "$HOME/theos"
+          cd "$HOME/theos"
+          ./autogen.sh
+          ./configure --enable-cctools
+          make
+          echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
+
+      - name: Build .deb
+        run: |
+          cd tweak
+          make clean package 2>&1 | tee build.log
+          echo "---- 产物 ----"
+          ls -la com.ssx.iosagent_*.deb
+          test -f com.ssx.iosagent_*.deb || { tail -100 build.log; exit 1; }
+
+      - name: Upload .deb artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iosagent-deb
+          path: |
+            tweak/com.ssx.iosagent_*.deb
+            tweak/build.log

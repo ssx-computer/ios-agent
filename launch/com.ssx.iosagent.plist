@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.ssx.iosagent</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/var/jb/usr/bin/node</string>
+		<string>/var/mobile/Library/iosagent/agent.js</string>
+		<string>--repl</string>
+	</array>
+	<key>WorkingDirectory</key>
+	<string>/var/mobile/Library/iosagent</string>
+	<key>UserName</key>
+	<string>mobile</string>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<dict>
+		<key>SuccessfulExit</key>
+		<false/>
+	</dict>
+	<key>StandardOutPath</key>
+	<string>/private/tmp/iosagent.log</string>
+	<key>StandardErrorPath</key>
+	<string>/private/tmp/iosagent.err</string>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>HOME</key>
+		<string>/var/mobile</string>
+	</dict>
+</dict>
+</plist>

@@ -1,0 +1,6 @@
+{
+  "apiBase": "https://your-llm-endpoint/v1",
+  "apiKey": "sk-填你的key",
+  "model": "gpt-4o",
+  "maxSteps": 30
+}

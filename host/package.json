@@ -1,0 +1,10 @@
+{
+  "name": "iosagent-host",
+  "version": "0.1.0",
+  "private": true,
+  "description": "External-brain agent: drives a jailbroken iOS device (RootHide/Dopamine) via SSH + loopback Tweak TCP",
+  "main": "agent.js",
+  "dependencies": {
+    "ssh2": "^1.16.0"
+  }
+}
