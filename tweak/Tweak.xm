@@ -19,6 +19,7 @@
  */
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <UIKit/UIKeyInput.h>
 #import <UserNotifications/UserNotifications.h>
 #import <stdio.h>
 #import <unistd.h>
@@ -32,6 +33,11 @@
 
 static char gSock[160] = {0};
 static BOOL gSB = NO;
+
+/* 私有但稳定存在：UIApplication 的第一响应者 */
+@interface UIApplication (IOSAgentPrivate)
+- (id)firstResponder;
+@end
 
 static void iagentLog(const char *fmt, ...) {
     char buf[1024];
@@ -96,7 +102,7 @@ static const char *kSelTouchSetPhase = "setPhase:";
 static id makeTouch(UIWindow *win, CGPoint p, UITouchType type, UITouchPhase phase) {
     @try {
         Class TC = NSClassFromString(@"UITouch");
-        SEL sel = NSSelectorFromString(kSelTouchInit);
+        SEL sel = sel_registerName(kSelTouchInit);
         if (!TC || ![TC respondsToSelector:sel]) { iagentLog("iosagent: UITouch init sel missing\n"); return nil; }
         NSMethodSignature *sig = [TC methodSignatureForSelector:sel];
         NSInvocation *iv = [NSInvocation invocationWithMethodSignature:sig];
@@ -112,26 +118,27 @@ static id makeTouch(UIWindow *win, CGPoint p, UITouchType type, UITouchPhase pha
         BOOL first = YES;
         [iv setArgument:&first atIndex:9];
         [iv invoke];
-        id touch = [iv returnValue];
+        id touch = nil;
+        [iv getReturnValue:&touch];
         if (touch && phase != UITouchPhaseBegan) {
-            SEL sp = NSSelectorFromString(kSelTouchSetPhase);
+            SEL sp = sel_registerName(kSelTouchSetPhase);
             if ([touch respondsToSelector:sp])
                 [touch setValue:@((unsigned int)phase) forKey:@"phase"];
         }
         return touch;
-    } @catch (id e) { iagentLog("iosagent: makeTouch err %s\n", [e.reason UTF8String] ?: "?"); return nil; }
+    } @catch (NSException *e) { iagentLog("iosagent: makeTouch err %s\n", [e.reason UTF8String] ?: "?"); return nil; }
 }
 
 static UIEvent *makeBaseEvent(UIWindow *win) {
     @try {
         Class EC = NSClassFromString(@"UIEvent");
-        SEL sel = NSSelectorFromString(kSelEventInit);
+        SEL sel = sel_registerName(kSelEventInit);
         if (!EC || ![EC respondsToSelector:sel]) { iagentLog("iosagent: UIEvent init sel missing\n"); return nil; }
         NSMethodSignature *sig = [EC methodSignatureForSelector:sel];
         NSInvocation *iv = [NSInvocation invocationWithMethodSignature:sig];
         [iv setTarget:EC];
         [iv setSelector:sel];
-        unsigned int et = UIEventTypeTouches, sub = UIEventSubtypeTouches;
+        unsigned int et = UIEventTypeTouches, sub = 0;
         double ts = [NSProcessInfo processInfo].systemUptime;
         [iv setArgument:&et atIndex:2];
         [iv setArgument:&sub atIndex:3];
@@ -140,8 +147,10 @@ static UIEvent *makeBaseEvent(UIWindow *win) {
         id nilObj = nil;
         [iv setArgument:&nilObj atIndex:6];
         [iv invoke];
-        return [iv returnValue];
-    } @catch (id e) { iagentLog("iosagent: makeBaseEvent err %s\n", [e.reason UTF8String] ?: "?"); return nil; }
+        id ev = nil;
+        [iv getReturnValue:&ev];
+        return ev;
+    } @catch (NSException *e) { iagentLog("iosagent: makeBaseEvent err %s\n", [e.reason UTF8String] ?: "?"); return nil; }
 }
 
 static void firePhase(UIWindow *win, UITouchPhase phase, CGPoint p, UITouchType type) {
@@ -150,7 +159,7 @@ static void firePhase(UIWindow *win, UITouchPhase phase, CGPoint p, UITouchType 
         UIEvent *ev = makeBaseEvent(win);
         if (!touch || !ev) return;
         UIEvent *phaseEv = ev;
-        SEL s1 = NSSelectorFromString(kSelEventPhase);
+        SEL s1 = sel_registerName(kSelEventPhase);
         if ([ev respondsToSelector:s1]) {
             @try {
                 NSInvocation *iv = [NSInvocation invocationWithMethodSignature:[ev methodSignatureForSelector:s1]];
@@ -162,10 +171,12 @@ static void firePhase(UIWindow *win, UITouchPhase phase, CGPoint p, UITouchType 
                 double ts = [NSProcessInfo processInfo].systemUptime;
                 [iv setArgument:&ts atIndex:4];
                 [iv invoke];
-                phaseEv = [iv returnValue];
-            } @catch (id e) {}
+                id ev2 = nil;
+                [iv getReturnValue:&ev2];
+                phaseEv = ev2;
+            } @catch (NSException *e) {}
         } else {
-            SEL s2 = NSSelectorFromString(kSelEventTouches);
+            SEL s2 = sel_registerName(kSelEventTouches);
             if ([ev respondsToSelector:s2]) {
                 @try {
                     NSSet *set = [NSSet setWithObject:touch];
@@ -174,12 +185,14 @@ static void firePhase(UIWindow *win, UITouchPhase phase, CGPoint p, UITouchType 
                     [iv setSelector:s2];
                     [iv setArgument:&set atIndex:2];
                     [iv invoke];
-                    phaseEv = [iv returnValue];
-                } @catch (id e) {}
+                    id ev2 = nil;
+                    [iv getReturnValue:&ev2];
+                    phaseEv = ev2;
+                } @catch (NSException *e) {}
             }
         }
         if (phaseEv) [[UIApplication sharedApplication] sendEvent:phaseEv];
-    } @catch (id e) { iagentLog("iosagent: firePhase err %s\n", [e.reason UTF8String] ?: "?"); }
+    } @catch (NSException *e) { iagentLog("iosagent: firePhase err %s\n", [e.reason UTF8String] ?: "?"); }
 }
 
 static NSDictionary *doTap(NSDictionary *p) {
@@ -203,7 +216,7 @@ static NSDictionary *doTap(NSDictionary *p) {
 }
 
 static NSDictionary *doSwipe(NSDictionary *p) {
-    double x1 = [p[@"x1"] doubleValue], y1 = [p[@"y1"] doubleValue;
+    double x1 = [p[@"x1"] doubleValue], y1 = [p[@"y1"] doubleValue];
     double x2 = [p[@"x2"] doubleValue], y2 = [p[@"y2"] doubleValue];
     double ms = [p[@"ms"] doubleValue]; if (ms <= 0 || ms > 3000) ms = 300;
     int steps = 8;
@@ -232,7 +245,7 @@ static NSDictionary *doType(NSDictionary *p) {
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             UIWindow *w = keyWin();
-            id fr = [w firstResponder];
+            id fr = [UIApplication sharedApplication].firstResponder;
             BOOL ok = NO;
             if ([fr conformsToProtocol:@protocol(UIKeyInput)]) {
                 UIKeyInput *ki = (UIKeyInput)fr;
@@ -241,7 +254,7 @@ static NSDictionary *doType(NSDictionary *p) {
                 ok = YES;
             }
             res = @{@"ok": @YES, @"typed": @(ok)};
-        } @catch (id e) {
+        } @catch (NSException *e) {
             res = @{@"ok": @NO, @"err": e.reason ?: @""};
         }
         dispatch_semaphore_signal(sem);
@@ -356,7 +369,7 @@ static NSDictionary *doOpen(NSDictionary *p) {
                          [safe UTF8String], [safe UTF8String]];
         int r = system([cmd UTF8String]);
         return @{@"ok": @(r == 0), @"via": @"bsctl"};
-    } @catch (id e) {
+    } @catch (NSException *e) {
         return @{@"ok": @NO, @"err": e.reason ?: @""};
     }
 }
@@ -417,7 +430,7 @@ static NSDictionary *handleCommand(NSDictionary *cmd) {
         if ([c isEqualToString:@"ui"])    return doUi();
         if ([c isEqualToString:@"open"])  return doOpen(p);
         return @{@"ok": @NO, @"err": @"unknown command"};
-    } @catch (id e) {
+    } @catch (NSException *e) {
         return @{@"ok": @NO, @"err": e.reason ?: @"exception"};
     }
 }
@@ -496,7 +509,7 @@ static void ensureAgentDaemon(void) {
         }
         posix_spawn_file_actions_destroy(&fa);
         posix_spawnattr_destroy(&at);
-    } @catch (id e) { iagentLog("iosagent: spawn err %s\n", [e.reason UTF8String] ?: "?"); }
+    } @catch (NSException *e) { iagentLog("iosagent: spawn err %s\n", [e.reason UTF8String] ?: "?"); }
 }
 
 static void serveForever(int s) {
