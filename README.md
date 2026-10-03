@@ -76,8 +76,31 @@ iosagentd --status       # 检查配置、zsh 路径、Tweak 端口注册表
 ```
 
 也可用环境变量覆盖：`IAGENT_API_BASE / IAGENT_API_KEY / IAGENT_MODEL`。
+也可以直接在 Web 面板里改（保存即时生效）。
 
-## 四、使用（无电脑）
+## 四、Web 面板（127.0.0.1:80）
+
+agentd 内置 HTTP 服务，只绑 127.0.0.1（不出网卡）。手机 Safari 打开：
+
+```
+http://127.0.0.1:80
+```
+
+> iOS 限制非 root 绑定 80 以下的端口（EACCES），所以 RootHide（rootless）
+> 上会自动降级到 **8080**，实际端口写在 `/private/tmp/iosagentd.port`，
+> `iosagentd --status` 也会显示；想固定其它端口在配置里加 `"webPort": 8080`。
+
+面板功能：
+
+- **下发目标**：文本框输入 → POST /api/goal → 写入目标队列，守护进程 2s 内自动执行；
+- **外部模型配置**：apiBase / apiKey / model / maxSteps / terminalBundleId 在线编辑并即时生效；
+- **状态**：pid、实际 web 端口、zsh 路径、已注入进程端口注册表（3s 自动刷新）；
+- **结果 / agentd 日志**：最近 20 条执行结果与 60 行日志。
+
+API 端点（本机可用）：`GET /api/status | /api/results | /api/goals | /api/log | /api/config`、
+`POST /api/goal`（text/plain）、`POST /api/config`（JSON 合并写入）。
+
+## 五、使用（无电脑）
 
 ```sh
 # 交互式（推荐）：
@@ -97,7 +120,7 @@ iosagentd "创建 /var/mobile/notes/今天.md，写入三条待办"
 `rm /private/tmp/iosagentd.stop && kill $(cat /private/tmp/iosagentd.pid)`（SB 会在 30s 内自动重新拉起）。
 日志：`/private/tmp/iosagentd.log`。
 
-## 五、触摸点不生效时的排坑
+## 六、触摸点不生效时的排坑
 
 1. `log stream | grep iosagent` 看有无 `sel missing`；
 2. 确认目标 App 已注入（`ls /private/tmp/iosagent_port_*` 有它的端口文件）；
@@ -107,7 +130,7 @@ iosagentd "创建 /var/mobile/notes/今天.md，写入三条待办"
 
 已知边界：锁屏 PIN / Secure Input 无法注入（系统保护）；截图不含状态栏。
 
-## 六、安全
+## 七、安全
 
 - Tweak 只监听 unix socket（0600）与 127.0.0.1 loopback TCP，**不出网卡**；
 - 唯一出网是 LLM API；`shell` 工具权限 = 手机当前用户权限（rootless 即
@@ -115,7 +138,7 @@ iosagentd "创建 /var/mobile/notes/今天.md，写入三条待办"
   操作**，key 请只给可信端点；
 - 想收敛面：终端里 `touch /private/tmp/iosagentd.stop` 随时停。
 
-## 七、可选扩展
+## 八、可选扩展
 
 - **`host/`（宿主机版）**：不想在手机跑循环时，`host/agent.js`（Node +
   ssh2）在电脑上跑大脑，经 ssh 隧道打同一套 Tweak 端口 + 直接 ssh shell，
