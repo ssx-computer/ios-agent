@@ -20,12 +20,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Checkout theos
+      - name: Checkout theos (with vendor submodules)
         uses: actions/checkout@v4
         with:
           repository: theos/theos
           path: theos
           fetch-depth: 1
+          submodules: recursive
 
       - name: Checkout theos sdks
         uses: actions/checkout@v4
@@ -37,22 +38,14 @@ jobs:
       - name: Install theos
         run: |
           set -e
-          brew install autoconf automake jq 2>/dev/null || true
+          # ldid/xz 是 make package 签名/打包必需（theos bin/ 内不带）
+          brew install ldid xz 2>/dev/null || true
           mv theos "$HOME/theos"
           cd "$HOME/theos"
-          echo "--- theos 工作树自检 ---"
-          ls -la | head -15
-          # 自愈：.git 对象已在本地，即使 checkout 未落盘也能从本地恢复（无需网络）
-          if [ ! -f autogen.sh ]; then
-            echo "autogen.sh 缺失，从本地对象库强制恢复..."
-            git checkout master -- . || git restore . || true
-            ls -la | head -15
-          fi
-          test -f autogen.sh
+          # modern theos 无 autogen/configure：clone --recursive 即用；此步兑底补拉 vendor
+          git submodule update --init --recursive --depth=1 2>/dev/null || true
+          test -f makefiles/common.mk || { echo "vendor 缺失："; ls vendor; exit 1; }
           test -f sdks/iPhoneOS14.5.sdk/SDKSettings.json || ls sdks | head -30
-          ./autogen.sh
-          ./configure
-          make
           echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
 
       - name: Build .deb
