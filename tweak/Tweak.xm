@@ -377,7 +377,7 @@ static void appendNotif(NSString *bid, NSString *title, NSString *body) {
     } @catch (id e) {}
 }
 
-%hook(conditional=1) UNUserNotificationCenter
+%hook UNUserNotificationCenter
 - (void)willPresentNotification:(UNNotification *)n
         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))h {
     @try {
