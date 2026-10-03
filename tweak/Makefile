@@ -5,7 +5,7 @@ TARGET := iphone:clang:14.5:14.5
 ARCHS := arm64
 GO_EASY_ON_ME = 1
 
-# Tweak（手脚）：注入所有 App + SpringBoard（默认 filter）
+# Tweak（手脚）
 TWEAK_NAME = iosagent
 iosagent_FILES = Tweak.xm
 iosagent_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
@@ -17,4 +17,5 @@ iosagentd_CFLAGS = -fobjc-arc
 iosagentd_LDFLAGS = -lcurl
 
 include $(THEOS)/makefiles/common.mk
-include $(THEOS)/makefiles/rules.mk
+include $(THEOS)/makefiles/tweak.mk
+include $(THEOS)/makefiles/tool.mk
