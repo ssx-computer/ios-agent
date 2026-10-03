@@ -640,9 +640,12 @@ static void webHandle(int c) {
                     hdrLen = k + 4;
                     NSString *hdr = [[NSString alloc] initWithBytes:req.bytes length:k encoding:NSASCIIStringEncoding];
                     NSRange cl = [hdr rangeOfString:@"Content-Length:" options:NSCaseInsensitiveSearch];
-                    bodyRemain = (cl.location == NSNotFound) ? 0
-                        : (int)strtol([[[hdr substringFromIndex:NSMaxRange(cl)] componentsSeparatedByString:@"\r"] firstObject] UTF8String, 0, 10);
-                    if (bodyRemain < 0) bodyRemain = 0;
+                    if (cl.location != NSNotFound) {
+                        NSArray *clParts = [[hdr substringFromIndex:NSMaxRange(cl)] componentsSeparatedByString:@"\r"];
+                        NSString *cl0 = [(NSString *)[clParts firstObject] copy];
+                        bodyRemain = (int)strtol(cl0.UTF8String ?: "0", 0, 10);
+                        if (bodyRemain < 0) bodyRemain = 0;
+                    } else bodyRemain = 0;
                     break;
                 }
             }
@@ -696,9 +699,13 @@ static void webHandle(int c) {
         if (!g.length) { httpReply(c, 400, "Bad Request", "application/json", @"{\"ok\":false}\n"); return; }
         if (g.length > 500) g = [g substringToIndex:500];
         NSString *line = [g stringByAppendingString:@"\n"];
-        NSFileHandle *h = [NSFileHandle fileForWritingAtPath:GOAL_FILE];
-        if (h) { [h seekToEndOfFile]; [h writeData:[line dataUsingEncoding:NSUTF8StringEncoding]]; [h closeFile]; }
-        else { [line writeToFile:GOAL_FILE atomically:YES encoding:NSUTF8StringEncoding error:NULL]; }
+        FILE *gf = fopen([GOAL_FILE UTF8String], "a");
+        if (gf) {
+            fwrite([line dataUsingEncoding:NSUTF8StringEncoding].bytes, 1, [line dataUsingEncoding:NSUTF8StringEncoding].length, gf);
+            fclose(gf);
+        } else {
+            [line writeToFile:GOAL_FILE atomically:YES encoding:NSUTF8StringEncoding error:NULL];
+        }
         httpReply(c, 200, "OK", "application/json", j2s(@{@"ok": @YES, @"queued": g}));
         return;
     }
@@ -769,12 +776,12 @@ static void appendResult(NSString *goal, NSString *answer) {
                            @"goal": goal, @"answer": answer };
     NSData *d = [NSJSONSerialization dataWithJSONObject:rec options:0 error:NULL];
     if (!d) return;
-    NSFileHandle *h = [NSFileHandle fileForWritingAtPath:RESULT_FILE];
-    if (!h) { [d writeToFile:RESULT_FILE atomically:YES]; return; }
-    [h seekToEndOfFile];
-    [h writeData:d];
-    [h writeData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    [h closeFile];
+    NSData *nl = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
+    FILE *f = fopen([RESULT_FILE UTF8String], "a");
+    if (!f) return;
+    fwrite(d.bytes, 1, d.length, f);
+    fwrite(nl.bytes, 1, nl.length, f);
+    fclose(f);
 }
 
 /* ---------------- 各运行模式 ---------------- */
@@ -792,16 +799,17 @@ static void daemonMode(void) {
             if (all && all.length > offset) {
                 NSString *full = [[NSString alloc] initWithData:all encoding:NSUTF8StringEncoding];
                 NSString *newPart = [full substringFromIndex:offset];
-                for (NSString *line in [newPart componentsSeparatedByString:@"\n"]) {
-                    line = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                for (NSString *line0 in [newPart componentsSeparatedByString:@"\n"]) {
+                    NSString *line = [line0 stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
                     if (!line.length) continue;
                     fprintf(stderr, "\n[goal] %s\n", [line UTF8String]);
                     NSString *answer = runGoal(line);
                     appendResult(line, answer);
                 }
                 offset = all.length;
-                [([NSString stringWithFormat:@"%ld", (long)offset] dataUsingEncoding:NSUTF8StringEncoding)
-                 writeToFile:OFFSET_FILE atomically:YES];
+                NSData *od2 = [[NSString stringWithFormat:@"%ld", (long)offset]
+                               dataUsingEncoding:NSUTF8StringEncoding];
+                [od2 writeToFile:OFFSET_FILE atomically:YES];
             }
         }
         sleep(2);
@@ -823,7 +831,7 @@ static void status(void) {
     printf("iosagentd 状态：\n");
     printf("  配置: %s\n", [CFG_FILE UTF8String]);
     NSFileManager *fm = [NSFileManager defaultManager];
-    printf("  目标文件: %s (%s)\n", [GOAL_FILE UTF8String], fm.fileExistsAtPath:GOAL_FILE ? "存在" : "不存在");
+    printf("  目标文件: %s (%s)\n", [GOAL_FILE UTF8String], [fm fileExistsAtPath:GOAL_FILE] ? "存在" : "不存在");
     printf("  结果文件: %s\n", [RESULT_FILE UTF8String]);
     printf("  shell: %s\n", [findShell() UTF8String]);
     printf("  web: 127.0.0.1:%d（实际端口也写在 /private/tmp/iosagentd.port）\n", g_webPortLive);
