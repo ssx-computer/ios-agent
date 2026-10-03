@@ -43,7 +43,7 @@ static int   g_webPort = 0;      /* 配置里的期望端口，0=默认 80 */
 static int   g_webPortLive = 0;  /* 实际监听端口 */
 static NSString *g_termBundleId = nil;
 
-static void logf(const char *fmt, ...) {
+static void dlog(const char *fmt, ...) {
     va_list v; va_start(v, fmt);
     fprintf(stderr, "[iosagentd] ");
     vfprintf(stderr, fmt, v);
@@ -198,7 +198,7 @@ static NSDictionary *tcpRpc(int port, NSDictionary *cmd, int timeoutSec) {
 }
 
 static NSDictionary *portMap(void) {
-    NSDictionary *res = [NSDictionary dictionary];
+    NSMutableDictionary *res = [NSMutableDictionary dictionary];
     NSDirectoryEnumerator *e = [[NSFileManager defaultManager] enumeratorAtPath:@"/private/tmp"];
     for (NSString *name in e) {
         if (![name hasPrefix:@"iosagent_port_"] || [name containsPathSeparator]) continue;
@@ -374,8 +374,10 @@ static NSDictionary *runTool(NSString *name, NSDictionary *args, NSString **err)
             NSString *c = [name isEqualToString:@"ui_tree"] ? @"ui" : name;
             NSDictionary *r = tcpRpc(port, @{@"c": c, @"p": args ?: [NSDictionary dictionary]}, [name isEqualToString:@"ui_tree"] ? 15 : 10);
             if (![r[@"ok"] boolValue]) { *err = [r[@"err"] description] ?: @"tweak error"; return nil; }
-            if ([name isEqualToString:@"ui_tree"])
-                return @{@"nodes": [r[@"nodes"] isKindOfClass:[NSArray class]] ? [r[@"nodes"] subarrayWithRange:NSMakeRange(0, MIN(r[@"nodes"].count, 400))] : [NSArray array]};
+            if ([name isEqualToString:@"ui_tree"]) {
+                NSArray *nodes = [r[@"nodes"] isKindOfClass:[NSArray class]] ? r[@"nodes"] : [NSArray array];
+                return @{@"nodes": [nodes subarrayWithRange:NSMakeRange(0, MIN(nodes.count, 400))]};
+            }
             return r;
         }
         if ([name isEqualToString:@"open_app"]) {
@@ -416,13 +418,13 @@ static NSDictionary *runTool(NSString *name, NSDictionary *args, NSString **err)
 
 /* ---------------- 主循环 ---------------- */
 static NSString *const SYSTEM =
-    "你通过工具直接操作一台越狱 iPhone（纯本地运行）。两条通道：\n"
-    "A. 屏幕通道：tap/swipe/type/ui_tree/open_app —— 操作图形界面；每次动作后自动附最新屏幕。\n"
-    "B. 终端通道：shell（本地 zsh 执行命令）/ terminal_send（屏幕终端 App 发命令）—— 操作越狱系统、网页、文件。\n"
-    "优先用 shell 完成文件/包管理/服务类任务；需要 UI 交互才用屏幕通道。\n"
-    "屏幕坐标单位是 points 不是 pixels。\n"
-    "连续 3 次同类动作无效就换策略，仍失败则调用 finish 说明原因。\n"
-    "破坏性命令（rm -rf、卸载系统组件、重启）先谨慎执行；任务完成时调用 finish。";
+    @"你通过工具直接操作一台越狱 iPhone（纯本地运行）。两条通道：\n"
+    @"A. 屏幕通道：tap/swipe/type/ui_tree/open_app —— 操作图形界面；每次动作后自动附最新屏幕。\n"
+    @"B. 终端通道：shell（本地 zsh 执行命令）/ terminal_send（屏幕终端 App 发命令）—— 操作越狱系统、网页、文件。\n"
+    @"优先用 shell 完成文件/包管理/服务类任务；需要 UI 交互才用屏幕通道。\n"
+    @"屏幕坐标单位是 points 不是 pixels。\n"
+    @"连续 3 次同类动作无效就换策略，仍失败则调用 finish 说明原因。\n"
+    @"破坏性命令（rm -rf、卸载系统组件、重启）先谨慎执行；任务完成时调用 finish。";
 
 static NSString *runGoal(NSString *goal) {
     NSArray *tools = toolDefs();
@@ -430,7 +432,7 @@ static NSString *runGoal(NSString *goal) {
         NSMutableArray *messages = [NSMutableArray arrayWithObject:
             @{ @"role": @"system", @"content": SYSTEM }];
         NSString *s0 = shot();
-        if (!s0) { logf("首屏截图失败，继续（shell 工具仍可用）"); }
+        if (!s0) { dlog("首屏截图失败，继续（shell 工具仍可用）"); }
         NSDictionary *meta = s_global_shotMeta ?: [NSDictionary dictionary];
         NSMutableArray *first = [NSMutableArray arrayWithObject:
             @{ @"type": @"text",
@@ -443,7 +445,7 @@ static NSString *runGoal(NSString *goal) {
             fprintf(stderr, "\n[step %d] LLM...\n", step);
             NSString *err = nil;
             NSDictionary *m = llmCall(messages, tools, &err);
-            if (!m) { logf("LLM 失败: %@", err); return [NSString stringWithFormat:@"LLM 调用失败: %@", err]; }
+            if (!m) { dlog("LLM 失败: %@", err); return [NSString stringWithFormat:@"LLM 调用失败: %@", err]; }
             NSArray *calls = [m[@"tool_calls"] isKindOfClass:[NSArray class]] ? m[@"tool_calls"] : [NSArray array];
             NSString *content = [m[@"content"] isKindOfClass:[NSString class]] ? m[@"content"] : @"";
             if (content.length && !calls.count) {
@@ -574,10 +576,10 @@ static NSString *htmlPage(void) {
       "</script>\n</body>\n</html>\n";
 }
 
-static void httpReply(int c, int code, NSString *reason, NSString *ctype, NSString *body) {
+static void httpReply(int c, int code, const char *reason, const char *ctype, NSString *body) {
     NSData *bd = [body dataUsingEncoding:NSUTF8StringEncoding];
     NSString *h = [NSString stringWithFormat:
-        @"HTTP/1.1 %d %@\r\nContent-Type: %@; charset=utf-8\r\nContent-Length: %lu\r\n"
+        @"HTTP/1.1 %d %s\r\nContent-Type: %s; charset=utf-8\r\nContent-Length: %lu\r\n"
         @"Connection: close\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-store\r\n\r\n",
         code, reason, ctype, (unsigned long)bd.length];
     NSData *hd = [h dataUsingEncoding:NSASCIIStringEncoding];
@@ -639,7 +641,7 @@ static void webHandle(int c) {
                     NSString *hdr = [[NSString alloc] initWithBytes:req.bytes length:k encoding:NSASCIIStringEncoding];
                     NSRange cl = [hdr rangeOfString:@"Content-Length:" options:NSCaseInsensitiveSearch];
                     bodyRemain = (cl.location == NSNotFound) ? 0
-                        : (int)strtol([[hdr substringFromIndex:NSMaxRange(cl)] componentsSeparatedByString:@"\r"][0] UTF8String, 0, 10);
+                        : (int)strtol([[[hdr substringFromIndex:NSMaxRange(cl)] componentsSeparatedByString:@"\r"] firstObject] UTF8String, 0, 10);
                     if (bodyRemain < 0) bodyRemain = 0;
                     break;
                 }
@@ -653,11 +655,11 @@ static void webHandle(int c) {
     NSString *firstLine = [[hdr componentsSeparatedByString:@"\r\n"] firstObject] ?: @"";
     NSArray *parts = [firstLine componentsSeparatedByString:@" "];
     if (parts.count < 2) { close(c); return; }
-    NSString *method = parts[0].uppercaseString;
-    NSString *path = parts[1];
+    NSString *method = [(NSString *)parts[0] uppercaseString];
+    NSString *path = [(NSString *)parts[1] copy];
     NSRange q = [path rangeOfString:@"?"];
     if (q.location != NSNotFound) path = [path substringToIndex:q.location];
-    path = path.lowercaseString;
+    path = [(NSString *)path lowercaseString];
     NSData *body = req.length > hdrLen
         ? [req subdataWithRange:NSMakeRange(hdrLen, req.length - hdrLen)] : [NSData data];
 
@@ -737,13 +739,13 @@ static void webStart(void) {
         if (errno == EACCES || errno == EPERM) {
             a.sin_port = htons(8080); /* 非 root 绑 80 被拒（iOS 限制）→ 降级 */
             if (bind(s, (struct sockaddr *)&a, sizeof a) < 0) {
-                logf("web: bind fail: %s", strerror(errno));
+                dlog("web: bind fail: %s", strerror(errno));
                 close(s);
                 return;
             }
             g_webPortLive = 8080;
         } else {
-            logf("web: bind :%d fail: %s（可能已有实例在运行）", want, strerror(errno));
+            dlog("web: bind :%d fail: %s（可能已有实例在运行）", want, strerror(errno));
             close(s);
             return;
         }
@@ -752,7 +754,7 @@ static void webStart(void) {
     }
     if (listen(s, 16) < 0) { close(s); return; }
     [[NSString stringWithFormat:@"%d\n", g_webPortLive] writeToFile:@"/private/tmp/iosagentd.port" atomically:YES];
-    logf("web: http://127.0.0.1:%d （手机 Safari 打开即可）", g_webPortLive);
+    dlog("web: http://127.0.0.1:%d （手机 Safari 打开即可）", g_webPortLive);
     dispatch_async(dispatch_queue_create("iosagentd.web", DISPATCH_QUEUE_SERIAL), ^{
         while (1) {
             int c = accept(s, NULL, NULL);
@@ -777,14 +779,14 @@ static void appendResult(NSString *goal, NSString *answer) {
 
 /* ---------------- 各运行模式 ---------------- */
 static void daemonMode(void) {
-    logf("daemon 模式：监视 %s（停止: touch %s）", [GOAL_FILE UTF8String], [STOP_FILE UTF8String]);
+    dlog("daemon 模式：监视 %s（停止: touch %s）", [GOAL_FILE UTF8String], [STOP_FILE UTF8String]);
     long offset = 0;
     @autoreleasepool {
         NSString *txt = [NSString stringWithContentsOfFile:OFFSET_FILE encoding:NSUTF8StringEncoding error:NULL];
         offset = txt ? (long)strtoul([txt UTF8String], 0, 10) : 0;
     }
     while (1) {
-        if (access([STOP_FILE UTF8String], F_OK) == 0) { logf("检测到 stop 文件，退出"); exit(0); }
+        if (access([STOP_FILE UTF8String], F_OK) == 0) { dlog("检测到 stop 文件，退出"); exit(0); }
         @autoreleasepool {
             NSData *all = [NSData dataWithContentsOfFile:GOAL_FILE];
             if (all && all.length > offset) {
