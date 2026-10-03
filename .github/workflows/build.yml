@@ -52,9 +52,9 @@ jobs:
         run: |
           set -e
           cd tweak
-          make clean package 2>&1 | tee build.log
-          ls -la com.ssx.iosagent_*.deb
-          test -f com.ssx.iosagent_*.deb || { tail -100 build.log; exit 1; }
+          make clean package FINALPACKAGE=1 2>&1 | tee build.log
+          ls -la packages/*.deb
+          test -f packages/com.ssx.iosagent_*.deb || { tail -100 build.log; exit 1; }
 
       - name: Upload .deb artifact
         if: always()
@@ -62,5 +62,5 @@ jobs:
         with:
           name: iosagent-deb
           path: |
-            tweak/com.ssx.iosagent_*.deb
+            tweak/packages/com.ssx.iosagent_*.deb
             tweak/build.log
