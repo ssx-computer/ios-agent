@@ -1,0 +1,5 @@
+build-log*.txt
+*.deb
+dist/
+.theos/
+build.log

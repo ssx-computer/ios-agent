@@ -40,6 +40,16 @@ jobs:
           brew install autoconf automake jq 2>/dev/null || true
           mv theos "$HOME/theos"
           cd "$HOME/theos"
+          echo "--- theos 工作树自检 ---"
+          ls -la | head -15
+          # 自愈：.git 对象已在本地，即使 checkout 未落盘也能从本地恢复（无需网络）
+          if [ ! -f autogen.sh ]; then
+            echo "autogen.sh 缺失，从本地对象库强制恢复..."
+            git checkout master -- . || git restore . || true
+            ls -la | head -15
+          fi
+          test -f autogen.sh
+          test -f sdks/iPhoneOS14.5.sdk/SDKSettings.json || ls sdks | head -30
           ./autogen.sh
           ./configure
           make
