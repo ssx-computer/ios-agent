@@ -32,6 +32,28 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+/* roothide 兼容：有 roothide.h 时用 jbroot()（随机化 jbroot），
+   否则退化为 /var/jb 探测。传入路径一律 /usr/... 形式。 */
+#if __has_include(<roothide.h>)
+#import <roothide.h>
+#endif
+
+static NSString *jbPath(const char *rel) {
+    NSFileManager *fm = [NSFileManager defaultManager];
+#if __has_include(<roothide.h>)
+    const char *p = jbroot(rel);
+    if (p) {
+        NSString *ps = [NSString stringWithUTF8String:p];
+        if ([fm fileExistsAtPath:ps]) return ps;
+    }
+#endif
+    NSString *relS = [NSString stringWithUTF8String:rel];
+    NSString *rl = [@"/var/jb" stringByAppendingString:relS];
+    if ([fm fileExistsAtPath:rl]) return rl;
+    if ([fm fileExistsAtPath:relS]) return relS;
+    return rl;
+}
+
 #define CFG_FILE   @"/var/mobile/Library/iosagent.json"
 #define GOAL_FILE  @"/private/tmp/iosagent_goals.jsonl"
 #define RESULT_FILE @"/private/tmp/iosagent_results.jsonl"
@@ -248,7 +270,9 @@ static NSString *shot(void) {
 /* ---------------- shell 工具（本地 zsh） ---------------- */
 static NSString *findShell(void) {
     NSFileManager *fm = [NSFileManager defaultManager];
-    for (NSString *p in @[@"/var/jb/usr/bin/zsh", @"/usr/bin/zsh", @"/bin/zsh", @"/bin/sh"])
+    NSString *zsh = jbPath("/usr/bin/zsh");
+    if ([fm fileExistsAtPath:zsh]) return zsh;
+    for (NSString *p in @[@"/bin/zsh", @"/bin/sh", @"/bin/bash"])
         if ([fm fileExistsAtPath:p]) return p;
     return @"/bin/sh";
 }

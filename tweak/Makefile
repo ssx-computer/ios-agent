@@ -1,6 +1,9 @@
-# RootHide（rootless）: 用装在 /var/jb 下的 Theos 构建 → make THEOS=/var/jb/theos package
-# Dopamine（rootful）:  标准 Theos → make package
-# SDK 14.5（theos/sdks 自带）：对 iOS 15–18 向前兼容；私有 API 全部动态查找
+# 打包 scheme：rootless（Dopamine / palera1n rootless）为默认；
+# RootHide 用 THEOS_PACKAGE_SCHEME=roothide 构建（配合 roothide/theos）。
+# 代码内所有 jb 文件路径走 jbPath()（roothide.h 的 jbroot() / /var/jb 探测），
+# 一份源码同时出 rootless / roothide / rootful 包。
+THEOS_PACKAGE_SCHEME ?= rootless
+
 TARGET := iphone:clang:14.5:14.5
 ARCHS := arm64
 GO_EASY_ON_ME = 1
@@ -10,10 +13,11 @@ TWEAK_NAME = iosagent
 iosagent_FILES = Tweak.xm
 iosagent_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 
-# 本机 agent 核心（tool 可执行文件，默认安装到 /usr/bin，与 Tweak 同一个 .deb）
+# 本机 agent 核心（tool 可执行文件，与 Tweak 同一个 .deb）
 TOOL_NAME = iosagentd
 iosagentd_FILES = iosagentd.m
 iosagentd_CFLAGS = -fobjc-arc
+iosagentd_ENTITLEMENTS = iosagentd.entitlements
 
 include $(THEOS)/makefiles/common.mk
 include $(THEOS)/makefiles/tweak.mk

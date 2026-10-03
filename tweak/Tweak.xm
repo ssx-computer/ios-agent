@@ -25,6 +25,29 @@
 #import <sys/un.h>
 #import <sys/stat.h>
 #import <string.h>
+
+/* roothide 兼容：有 roothide.h 时用 jbroot()（随机化 jbroot），
+   否则（标准 theos 的 rootless/rootful scheme）退化为 /var/jb 探测。
+   传入路径一律用 /usr/... 形式（jb 内相对路径）。 */
+#if __has_include(<roothide.h>)
+#import <roothide.h>
+#endif
+
+static NSString *jbPath(const char *rel) {
+    NSFileManager *fm = [NSFileManager defaultManager];
+#if __has_include(<roothide.h>)
+    const char *p = jbroot(rel);
+    if (p) {
+        NSString *ps = [NSString stringWithUTF8String:p];
+        if ([fm fileExistsAtPath:ps]) return ps;
+    }
+#endif
+    NSString *relS = [NSString stringWithUTF8String:rel];
+    NSString *rl = [@"/var/jb" stringByAppendingString:relS];
+    if ([fm fileExistsAtPath:rl]) return rl;
+    if ([fm fileExistsAtPath:relS]) return relS;
+    return rl;
+}
 #import <netinet/in.h>
 #import <netdb.h>
 #import <errno.h>
@@ -494,9 +517,8 @@ static void ensureAgentDaemon(void) {
     if (f) { if (fscanf(f, "%d", &pid) != 1) pid = -1; fclose(f); }
     if (pid > 0 && kill(pid, 0) == 0) return; /* 已在跑 */
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *bin = @"/usr/bin/iosagentd";
-    if (![fm fileExistsAtPath:bin]) bin = @"/var/jb/usr/bin/iosagentd";
-    if (![fm fileExistsAtPath:bin]) bin = @"/private/var/jb/usr/bin/iosagentd";
+    NSString *bin = jbPath("/usr/bin/iosagentd");
+    if (![fm fileExistsAtPath:bin]) bin = jbPath("/usr/libexec/iosagentd");
     if (![fm fileExistsAtPath:bin]) return;
     @try {
         char *argv[3] = { (char *)[bin UTF8String], "--daemon", 0 };

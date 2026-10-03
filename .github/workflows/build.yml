@@ -1,7 +1,9 @@
-# iOSAgent 构建流：macOS + Theos → 单个 .deb（含 Tweak + iosagentd）
-# theos/sdks 走 actions/checkout（认证通道，规避 runner 出口网络对匿名
-# git clone / curl 的阻断）。SDK 用 iPhoneOS14.5.sdk（对 RootHide/Dopamine
-# 均向前兼容；私有 API 全部动态查找，不受 deployment 限制）。
+# iOSAgent 构建流：macOS + theos → 两个 rootless 类 .deb
+#   ① iosagent-rootless.deb  — Dopamine（/var/jb）/ palera1n rootless
+#   ② iosagent-roothide.deb  — RootHide（jbroot 随机化，THEOS_PACKAGE_SCHEME=roothide）
+# theos 用 roothide/theos fork（与原版 100% 同步兼容，内置 roothide scheme；
+# vendor submodules 走 actions/checkout 认证通道，规避 runner 出口网络阻断）。
+# 代码内 jb 文件路径走 jbPath()（roothide.h 的 jbroot() / /var/jb 探测），一份源码两包通用。
 name: build
 
 on:
@@ -20,10 +22,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Checkout theos (with vendor submodules)
+      - name: Checkout theos (roothide fork, with vendor submodules)
         uses: actions/checkout@v4
         with:
-          repository: theos/theos
+          repository: roothide/theos
           path: theos
           fetch-depth: 1
           submodules: recursive
@@ -38,29 +40,41 @@ jobs:
       - name: Install theos
         run: |
           set -e
-          # ldid/xz 是 make package 签名/打包必需（theos bin/ 内不带）
+          # ldid/xz 是 make package 签名/打包必需
           brew install ldid xz 2>/dev/null || true
           mv theos "$HOME/theos"
           cd "$HOME/theos"
-          # modern theos 无 autogen/configure：clone --recursive 即用；此步兑底补拉 vendor
+          # 兜底补拉 vendor（正常已在 submodules: recursive 时完成）
           git submodule update --init --recursive --depth=1 2>/dev/null || true
           test -f makefiles/common.mk || { echo "vendor 缺失："; ls vendor; exit 1; }
           test -f sdks/iPhoneOS14.5.sdk/SDKSettings.json || ls sdks | head -30
           echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
 
-      - name: Build .deb
+      - name: Build rootless .deb (Dopamine / palera1n rootless)
         run: |
           set -e
           cd tweak
-          make clean package FINALPACKAGE=1 2>&1 | tee build.log
+          THEOS_PACKAGE_SCHEME=rootless make clean package FINALPACKAGE=1 2>&1 | tee build-rootless.log
           ls -la packages/*.deb
-          test -f packages/com.ssx.iosagent_*.deb || { tail -100 build.log; exit 1; }
+          test -f packages/com.ssx.iosagent_*.deb || { tail -100 build-rootless.log; exit 1; }
+          mkdir -p out
+          mv packages/com.ssx.iosagent_*.deb out/iosagent-rootless.deb
 
-      - name: Upload .deb artifact
+      - name: Build roothide .deb (RootHide)
+        run: |
+          set -e
+          cd tweak
+          THEOS_PACKAGE_SCHEME=roothide make clean package FINALPACKAGE=1 2>&1 | tee build-roothide.log
+          ls -la packages/*.deb
+          test -f packages/com.ssx.iosagent_*.deb || { tail -100 build-roothide.log; exit 1; }
+          mv packages/com.ssx.iosagent_*.deb out/iosagent-roothide.deb
+
+      - name: Upload .deb artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: iosagent-deb
+          name: iosagent-debs
           path: |
-            tweak/packages/com.ssx.iosagent_*.deb
-            tweak/build.log
+            tweak/out/*.deb
+            tweak/build-rootless.log
+            tweak/build-roothide.log
