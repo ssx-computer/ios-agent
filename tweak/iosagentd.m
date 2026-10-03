@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 
 #define CFG_FILE   @"/var/mobile/Library/iosagent.json"
@@ -85,7 +86,7 @@ static BOOL writeConfig(void) {
                          @"apiKey": @"sk-填入外部模型的key",
                          @"model": @"gpt-4o",
                          @"maxSteps": @40,
-                         @"terminalBundleId": @@"换成你终端 App 的 bundleId" };
+                         @"terminalBundleId": @"换成你终端 App 的 bundleId" };
     NSData *d = [NSJSONSerialization dataWithJSONObject:j options:NSJSONWritingPrettyPrinted error:NULL];
     return [d writeToFile:CFG_FILE atomically:YES];
 }
@@ -201,7 +202,7 @@ static NSDictionary *portMap(void) {
     NSMutableDictionary *res = [NSMutableDictionary dictionary];
     NSDirectoryEnumerator *e = [[NSFileManager defaultManager] enumeratorAtPath:@"/private/tmp"];
     for (NSString *name in e) {
-        if (![name hasPrefix:@"iosagent_port_"] || [name containsPathSeparator]) continue;
+        if (![name hasPrefix:@"iosagent_port_"]) continue;
         NSString *content = [NSString stringWithContentsOfFile:
             [NSString stringWithFormat:@"/private/tmp/%@", name]
             encoding:NSUTF8StringEncoding error:NULL];
@@ -394,7 +395,7 @@ static NSDictionary *runTool(NSString *name, NSDictionary *args, NSString **err)
             }
             int sb = findPort(YES, 0);
             if (sb >= 0) {
-                [tcpRpc(sb, @{@"c": @"open", @"p": @{@"bundleId": g_termBundleId}}, 15)];
+                (void)tcpRpc(sb, @{@"c": @"open", @"p": @{@"bundleId": g_termBundleId}}, 15);
                 usleep(1800 * 1000);
             }
             int port = findPort(NO, 0);
