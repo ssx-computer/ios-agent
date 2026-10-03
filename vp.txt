@@ -1,0 +1,2 @@
+THEOS_PACKAGE_INSTALL_PREFIX = /var/jb
+

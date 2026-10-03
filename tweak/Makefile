@@ -17,7 +17,10 @@ iosagent_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 TOOL_NAME = iosagentd
 iosagentd_FILES = iosagentd.m
 iosagentd_CFLAGS = -fobjc-arc
-iosagentd_ENTITLEMENTS = iosagentd.entitlements
+
+# theos 无 XXX_ENTITLEMENTS 变量，entitlements 通过 ldid 的 -S<file> 嵌入
+# （platform-application/no-sandbox 等：rootless/roothide 上沙盒豁免必需）
+TARGET_CODESIGN_FLAGS = -Siosagentd.entitlements
 
 include $(THEOS)/makefiles/common.mk
 include $(THEOS)/makefiles/tweak.mk

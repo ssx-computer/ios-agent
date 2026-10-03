@@ -1,0 +1,5 @@
+Cygwin
+Darwin
+Linux
+Windows
+_common

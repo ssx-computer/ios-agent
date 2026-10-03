@@ -79,6 +79,12 @@ jobs:
           test -f packages/com.ssx.iosagent_*.deb || { tail -100 build-roothide.log; exit 1; }
           mv packages/com.ssx.iosagent_*.deb out/iosagent-roothide.deb
 
+      - name: Verify entitlements embedded in binaries
+        run: |
+          BIN=$(find tweak/.theos -name iosagentd -type f | head -1)
+          echo "checking: $BIN"
+          ldid -e "$BIN" || { echo "entitlements missing!"; exit 1; }
+
       - name: Upload .deb artifacts
         if: always()
         uses: actions/upload-artifact@v4

@@ -65,11 +65,24 @@ static NSString *jbPath(const char *rel) {
     return [root stringByAppendingString:relS];
 }
 
-#define CFG_FILE   @"/var/mobile/Library/iosagent.json"
 #define GOAL_FILE  @"/private/tmp/iosagent_goals.jsonl"
 #define RESULT_FILE @"/private/tmp/iosagent_results.jsonl"
 #define STOP_FILE  @"/private/tmp/iosagentd.stop"
 #define OFFSET_FILE @"/private/tmp/iosagentd.offset"
+
+/* 配置文件候选路径（按序找第一个可用的；IAGENT_CFG 环境变量优先） */
+static NSString *g_cfgPath = nil;   /* 实际使用/生成的配置路径 */
+static NSString *g_setupErr = nil;  /* --setup 失败时的最后一个错误 */
+
+static NSArray *configCandidates(void) {
+    NSMutableArray *a = [NSMutableArray array];
+    const char *e = getenv("IAGENT_CFG");
+    if (e && *e) [a addObject:[NSString stringWithUTF8String:e]];
+    [a addObject:@"/var/mobile/Library/iosagent.json"];
+    [a addObject:jbPath("/etc/iosagent.json")];
+    [a addObject:@"/private/tmp/iosagent.json"]; /* 沙盒/权限受限时的兑底（重启丢失） */
+    return a;
+}
 
 static char *g_apiBase = 0, *g_apiKey = 0, *g_model = 0;
 static int   g_maxSteps = 40;
@@ -86,14 +99,22 @@ static void dlog(const char *fmt, ...) {
 }
 
 /* ---------------- 配置 ---------------- */
+static NSDictionary *readConfigDict(void) {
+    for (NSString *p in configCandidates()) {
+        if (![[NSFileManager defaultManager] fileExistsAtPath:p]) continue;
+        NSData *d = [NSData dataWithContentsOfFile:p];
+        NSDictionary *j = d ? [NSJSONSerialization JSONObjectWithData:d options:0 error:NULL] : nil;
+        if ([j isKindOfClass:[NSDictionary class]]) { g_cfgPath = p; return j; }
+    }
+    return nil;
+}
+
 static void loadConfig(void) {
     g_apiBase = strdup("https://example-llm/v1");
     g_apiKey = strdup("");
     g_model = strdup("gpt-4o");
-    if ([[NSFileManager defaultManager] fileExistsAtPath:CFG_FILE]) {
-        NSData *d = [NSData dataWithContentsOfFile:CFG_FILE];
-        NSDictionary *j = d ? [NSJSONSerialization JSONObjectWithData:d options:0 error:NULL] : nil;
-        if ([j isKindOfClass:[NSDictionary class]]) {
+    NSDictionary *j = readConfigDict();
+    if (j) {
             if ([j[@"apiBase"] isKindOfClass:[NSString class]]) { free(g_apiBase); g_apiBase = strdup([j[@"apiBase"] UTF8String]); }
             if ([j[@"apiKey"] isKindOfClass:[NSString class]]) { free(g_apiKey); g_apiKey = strdup([j[@"apiKey"] UTF8String]); }
             if ([j[@"model"] isKindOfClass:[NSString class]]) { free(g_model); g_model = strdup([j[@"model"] UTF8String]); }
@@ -111,17 +132,29 @@ static void loadConfig(void) {
     if ((e = getenv("IAGENT_MODEL")))    { free(g_model);   g_model   = strdup(e); }
 }
 
-static BOOL writeConfig(void) {
-    NSString *dir = CFG_FILE.stringByDeletingLastPathComponent;
-    [[NSFileManager defaultManager] createDirectoryAtPath:dir
-                         withIntermediateDirectories:YES attributes:nil error:NULL];
+static BOOL writeConfigTo(NSString *path) {
     NSDictionary *j = @{ @"apiBase": @"https://your-llm-endpoint/v1",
                          @"apiKey": @"sk-填入外部模型的key",
                          @"model": @"gpt-4o",
                          @"maxSteps": @40,
                          @"terminalBundleId": @"换成你终端 App 的 bundleId" };
     NSData *d = [NSJSONSerialization dataWithJSONObject:j options:NSJSONWritingPrettyPrinted error:NULL];
-    return [d writeToFile:CFG_FILE atomically:YES];
+    if (!d) { g_setupErr = @"JSON 序列化失败"; return NO; }
+    NSError *err = nil;
+    if ([d writeToFile:path options:NSDataWritingAtomic error:&err]) { g_cfgPath = path; return YES; }
+    g_setupErr = err.localizedDescription ?: @"写入失败（未知原因）";
+    return NO;
+}
+
+static BOOL writeConfig(void) {
+    g_setupErr = nil;
+    for (NSString *p in configCandidates()) {
+        NSString *dir = [p stringByDeletingLastPathComponent];
+        [[NSFileManager defaultManager] createDirectoryAtPath:dir
+                             withIntermediateDirectories:YES attributes:nil error:NULL];
+        if (writeConfigTo(p)) return YES;
+    }
+    return NO;
 }
 
 /* ---------------- LLM（NSURLSession，OpenAI 兼容 chat/completions + tools） ---------------- */
@@ -749,7 +782,7 @@ static void webHandle(int c) {
         NSDictionary *jb = [NSJSONSerialization JSONObjectWithData:body options:0 error:NULL];
         if (![jb isKindOfClass:[NSDictionary class]]) { httpReply(c, 400, "Bad Request", "application/json", @"{\"ok\":false}\n"); return; }
         NSMutableDictionary *cur = [NSMutableDictionary dictionary];
-        NSData *cd = [NSData dataWithContentsOfFile:CFG_FILE];
+        NSData *cd = g_cfgPath ? [NSData dataWithContentsOfFile:g_cfgPath] : nil;
         if (cd) {
             NSDictionary *c = [NSJSONSerialization JSONObjectWithData:cd options:0 error:NULL];
             if ([c isKindOfClass:[NSDictionary class]]) [cur addEntriesFromDictionary:c];
@@ -759,7 +792,7 @@ static void webHandle(int c) {
                 cur[k] = jb[k];
         }
         NSData *out = [NSJSONSerialization dataWithJSONObject:cur options:NSJSONWritingPrettyPrinted error:NULL];
-        if (![out writeToFile:CFG_FILE atomically:YES]) { httpReply(c, 500, "Error", "application/json", @"{\"ok\":false}\n"); return; }
+        if (![out writeToFile:(g_cfgPath ?: @"/var/mobile/Library/iosagent.json") options:NSDataWritingAtomic error:NULL]) { httpReply(c, 500, "Error", "application/json", @"{\"ok\":false}\n"); return; }
         loadConfig(); /* 即时生效 */
         httpReply(c, 200, "OK", "application/json", j2s(@{@"ok": @YES}));
         return;
@@ -865,7 +898,7 @@ static void replMode(void) {
 
 static void status(void) {
     printf("iosagentd 状态：\n");
-    printf("  配置: %s\n", [CFG_FILE UTF8String]);
+    printf("  配置: %s\n", g_cfgPath ? [g_cfgPath UTF8String] : "(未找到，先运行 iosagentd --setup)");
     NSFileManager *fm = [NSFileManager defaultManager];
     printf("  目标文件: %s (%s)\n", [GOAL_FILE UTF8String], [fm fileExistsAtPath:GOAL_FILE] ? "存在" : "不存在");
     printf("  结果文件: %s\n", [RESULT_FILE UTF8String]);
@@ -879,8 +912,16 @@ static void status(void) {
 int main(int argc, char **argv) {
     @autoreleasepool {
         if (argc > 1 && !strcmp(argv[1], "--setup")) {
-            printf("%s\n", writeConfig() ? "已生成模板 /var/mobile/Library/iosagent.json（填入 apiBase/apiKey/model 后保存）"
-                                        : "生成失败");
+            if (writeConfig()) {
+                printf("已生成配置模板: %s\n填入 apiBase/apiKey/model 后保存；或用 Web 面板（127.0.0.1:80/8080）在线改。\n",
+                       [g_cfgPath UTF8String]);
+            } else {
+                fprintf(stderr, "生成失败: %s\n", g_setupErr ? [g_setupErr UTF8String] : "未知");
+                fprintf(stderr, "若为 Operation not permitted = 当前进程沙盒限制，两个替代方案：\n");
+                fprintf(stderr, "  1) 在 Web 面板（127.0.0.1:80/8080）里直接填配置（保存即时生效，无需文件权限）\n");
+                fprintf(stderr, "  2) 用环境变量（优先级最高）：\n");
+                fprintf(stderr, "     export IAGENT_API_BASE=https://.../v1 IAGENT_API_KEY=sk-... IAGENT_MODEL=gpt-4o\n");
+            }
             return 0;
         }
         loadConfig();
