@@ -29,7 +29,16 @@ jobs:
 
       - name: Setup Theos
         run: |
-          git clone --depth=1 https://github.com/theos/theos.git "$HOME/theos"
+          set -e
+          ok=0
+          for i in 1 2 3; do
+            rm -rf "$HOME/theos"
+            if git clone --depth=1 https://github.com/theos/theos.git "$HOME/theos" \
+               && test -f "$HOME/theos/autogen.sh"; then ok=1; break; fi
+            echo "theos clone attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+          test "$ok" = "1"
           cd "$HOME/theos"
           ./autogen.sh
           ./configure --enable-cctools
