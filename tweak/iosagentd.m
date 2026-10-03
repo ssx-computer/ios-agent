@@ -124,7 +124,6 @@ static void loadConfig(void) {
                 int p = [j[@"webPort"] intValue];
                 if (p > 0 && p < 65536) g_webPort = p;
             }
-        }
     }
     const char *e;
     if ((e = getenv("IAGENT_API_BASE"))) { free(g_apiBase); g_apiBase = strdup(e); }
