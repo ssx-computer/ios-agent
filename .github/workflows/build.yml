@@ -32,11 +32,15 @@ jobs:
           set -e
           ok=0
           for i in 1 2 3; do
-            rm -rf "$HOME/theos"
-            if git clone --depth=1 https://github.com/theos/theos.git "$HOME/theos" \
-               && test -f "$HOME/theos/autogen.sh"; then ok=1; break; fi
-            echo "theos clone attempt $i failed, retrying in 15s..."
-            sleep 15
+            rm -rf "$HOME/theos" "$HOME/theos.tar.gz"
+            if curl -fsSL --retry 2 -o "$HOME/theos.tar.gz" \
+                 https://codeload.github.com/theos/theos/tar.gz/refs/heads/master \
+               && tar xzf "$HOME/theos.tar.gz" -C "$HOME" \
+               && test -f "$HOME/theos-master/autogen.sh"; then
+              mv "$HOME/theos-master" "$HOME/theos"; ok=1; break
+            fi
+            echo "theos download attempt $i failed, retrying in 10s..."
+            sleep 10
           done
           test "$ok" = "1"
           cd "$HOME/theos"
