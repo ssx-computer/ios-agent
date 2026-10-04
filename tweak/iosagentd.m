@@ -278,7 +278,7 @@ static NSDictionary *portMap(void) {
     return res;
 }
 
-/* 截图元信息缓存（shot() 写，runGoal 读） */
+/* 截图元信息缓存（shot() 写，chatTurnCore 读） */
 static NSDictionary *s_global_shotMeta = nil;
 
 static int findPort(BOOL wantSB, BOOL *gotActive) {
@@ -424,12 +424,7 @@ static NSArray *toolDefs(void) {
           @"name": @"recent_notifs",
           @"description": @"读取手机上最近出现过的通知列表。",
           @"parameters": @{ @"type": @"object", @"properties": [NSDictionary dictionary] } } },
-      @{ @"type": @"function", @"function": @{
-          @"name": @"finish",
-          @"description": @"任务完成（或确定无法完成）时调用，给出最终结论。",
-          @"parameters": @{ @"type": @"object",
-                            @"properties": @{ @"answer": @{@"type": @"string"} },
-                            @"required": @[@"answer"] } } },
+      @{ @"type": @"function", @"function": },
     ];
 }
 
@@ -484,86 +479,141 @@ static NSDictionary *runTool(NSString *name, NSDictionary *args, NSString **err)
     }
 }
 
-/* ---------------- 主循环 ---------------- */
+/* ---------------- 对话式主循环（模型可调工具，也可纯文字回答） ---------------- */
 static NSString *const SYSTEM =
-    @"你通过工具直接操作一台越狱 iPhone（纯本地运行）。两条通道：\n"
-    @"A. 屏幕通道：tap/swipe/type/ui_tree/open_app —— 操作图形界面；每次动作后自动附最新屏幕。\n"
-    @"B. 终端通道：shell（本地 zsh 执行命令）/ terminal_send（屏幕终端 App 发命令）—— 操作越狱系统、网页、文件。\n"
-    @"优先用 shell 完成文件/包管理/服务类任务；需要 UI 交互才用屏幕通道。\n"
-    @"屏幕坐标单位是 points 不是 pixels。\n"
-    @"连续 3 次同类动作无效就换策略，仍失败则调用 finish 说明原因。\n"
-    @"破坏性命令（rm -rf、卸载系统组件、重启）先谨慎执行；任务完成时调用 finish。";
+    @"你是运行在一台越狱 iPhone 上的对话式 AI 助手（iosagentd，纯本地运行）。你可以通过工具操作这台手机：\n"
+    @"A. 屏幕：tap/swipe/type/ui_tree/open_app（坐标单位 points，动作后系统会自动附上最新屏幕）\n"
+    @"B. 终端：shell（本地 zsh：curl 访问网页、创建/修改文件、apt 包管理、看日志）、terminal_send（屏幕终端 App 发命令）\n"
+    @"C. 信息：recent_notifs（最近通知）\n"
+    @"你可以自由选择：能直接用文字回答的就直接回答，不必调用工具；需要操作手机、查系统状态或读文件时才调用。\n"
+    @"用户消息可能是闲聊、提问或操作请求——按需响应，简洁自然，像正常聊天一样。";
 
-static NSString *runGoal(NSString *goal) {
+#define CHAT_FILE   @"/var/mobile/Library/iosagent_chat.json"
+#define STATE_FILE  @"/private/tmp/iosagent_chat_state.json"
+static volatile int g_chatBusy = 0;
+
+static NSArray *chatCandidates(void) {
+    NSMutableArray *a = [NSMutableArray array];
+    [a addObject:CHAT_FILE];
+    [a addObject:jbPath("/etc/iosagent_chat.json")];
+    [a addObject:@"/private/tmp/iosagent_chat.json"];
+    return a;
+}
+
+static NSMutableArray *loadChat(void) {
+    for (NSString *p in chatCandidates()) {
+        if (![[NSFileManager defaultManager] fileExistsAtPath:p]) continue;
+        NSData *d = [NSData dataWithContentsOfFile:p];
+        NSArray *m = d ? [NSJSONSerialization JSONObjectWithData:d options:0 error:NULL] : nil;
+        if ([m isKindOfClass:[NSArray class]]) return [m mutableCopy];
+    }
+    return nil;
+}
+
+/* 保存会话；超过 40 条时把最旧消息里的图片替换为占位文本，防 token 爆炸 */
+static void saveChat(NSMutableArray *messages) {
+    if (messages.count > 40) {
+        NSUInteger extra = messages.count - 40;
+        NSUInteger removed = 0;
+        for (NSUInteger i = 0; i < messages.count && removed < extra; i++) {
+            id c = messages[i][@"content"];
+            if ([c isKindOfClass:[NSArray class]]) {
+                NSMutableArray *nc = [c mutableCopy];
+                BOOL had = NO;
+                for (NSUInteger k = 0; k < nc.count; k++) {
+                    if ([nc[k][@"type"] isEqualToString:@"image_url"]) {
+                        nc[k] = @{ @"type": @"text", @"text": @"[历史截图已省略]" };
+                        had = YES;
+                    }
+                }
+                if (had) { messages[i] = @{ @"role": messages[i][@"role"], @"content": nc }; removed++; }
+            }
+        }
+    }
+    NSData *d = [NSJSONSerialization dataWithJSONObject:messages options:0 error:NULL];
+    if (!d) return;
+    for (NSString *p in chatCandidates()) {
+        if ([d writeToFile:p options:NSDataWritingAtomic error:NULL]) return;
+    }
+}
+
+static void saveState(BOOL busy, NSString *reply, NSArray *steps) {
+    NSDictionary *s = @{ @"busy": @(busy),
+                         @"ts": @((long)[[NSDate date] timeIntervalSince1970]),
+                         @"reply": reply ?: @"", @"steps": steps ?: @[] };
+    NSData *d = [NSJSONSerialization dataWithJSONObject:s options:0 error:NULL];
+    if (!d) return;
+    for (NSString *p in @[STATE_FILE, @"/var/mobile/Library/iosagent_chat_state.json"]) {
+        if ([d writeToFile:p options:NSDataWritingAtomic error:NULL]) return;
+    }
+}
+
+static NSDictionary *loadState(void) {
+    NSData *d = [NSData dataWithContentsOfFile:STATE_FILE];
+    NSDictionary *s = d ? [NSJSONSerialization JSONObjectWithData:d options:0 error:NULL] : nil;
+    if ([s isKindOfClass:[NSDictionary class]]) return s;
+    return @{ @"busy": @(g_chatBusy ? YES : NO), @"reply": @"", @"steps": @[], @"ts": @0 };
+}
+
+/* 对话式一轮（同步，不管理 busy）：加载会话 -> 追加用户消息 -> LLM/工具循环 -> 保存 -> 返回回复。
+   模型纯文字无工具调用即结束（不强制工具/不强制 finish）；屏幕类工具后自动附最新屏幕。 */
+static NSString *chatTurnCore(NSString *userText, NSMutableArray **outSteps) {
     if (!g_apiKey || !*g_apiKey || strstr(g_apiKey, "填入")) {
-        NSString *msg = @"未配置外部模型：请用手机 Safari 打开 Web 面板（http://127.0.0.1:80 或 :8080）填写 apiBase/apiKey/model（保存即时生效），或用环境变量 IAGENT_API_BASE / IAGENT_API_KEY / IAGENT_MODEL";
-        printf("\n=== 未配置 ===\n%s\n", [msg UTF8String]);
-        return msg;
+        return @"未配置外部模型：在本面板上方『外部模型配置』里填 apiBase/apiKey/model（保存即时生效）";
     }
     NSArray *tools = toolDefs();
     @autoreleasepool {
-        NSMutableArray *messages = [NSMutableArray arrayWithObject:
-            @{ @"role": @"system", @"content": SYSTEM }];
-        NSString *s0 = shot();
-        if (!s0) { dlog("首屏截图失败，继续（shell 工具仍可用）"); }
-        NSDictionary *meta = s_global_shotMeta ?: [NSDictionary dictionary];
-        NSMutableArray *first = [NSMutableArray arrayWithObject:
-            @{ @"type": @"text",
-               @"text": [NSString stringWithFormat:@"任务：%@ (屏幕 w=%@ h=%@ points; 已注入进程: %@)",
-                         goal, meta[@"w"] ?: @"?", meta[@"h"] ?: @"?", [portMap() description]] }];
-        if (s0) [first addObject:@{ @"type": @"image_url", @"image_url": @{ @"url": s0 } }];
-        [messages addObject:@{ @"role": @"user", @"content": first }];
+        NSMutableArray *messages = loadChat();
+        if (!messages) messages = [NSMutableArray arrayWithObject:@{ @"role": @"system", @"content": SYSTEM }];
+        [messages addObject:@{ @"role": @"user", @"content": userText }];
 
+        NSMutableArray *steps = [NSMutableArray array];
+        NSString *reply = nil;
         for (int step = 1; step <= g_maxSteps; step++) {
             fprintf(stderr, "\n[step %d] LLM...\n", step);
             NSString *err = nil;
             NSDictionary *m = llmCall(messages, tools, &err);
-            if (!m) { dlog("LLM 失败: %@", err); return [NSString stringWithFormat:@"LLM 调用失败: %@", err]; }
+            if (!m) { reply = [NSString stringWithFormat:@"LLM 调用失败: %@", err ?: @"?"]; break; }
             NSArray *calls = [m[@"tool_calls"] isKindOfClass:[NSArray class]] ? m[@"tool_calls"] : [NSArray array];
             NSString *content = [m[@"content"] isKindOfClass:[NSString class]] ? m[@"content"] : @"";
-            if (content.length && !calls.count) {
-                printf("\n=== 结论 ===\n%s\n", [content UTF8String]);
-                return content;
+            if (content.length && !calls.count) { /* 模型纯文字 -> 本轮结束 */
+                [messages addObject:@{ @"role": @"assistant", @"content": content }];
+                reply = content;
+                break;
             }
-            [messages addObject:@{ @"role": @"assistant", @"content": content,
-                                   @"tool_calls": calls ?: [NSArray array] }];
-            NSMutableArray *results = [NSMutableArray array];
-            NSString *finalAnswer = nil;
+            [messages addObject:@{ @"role": @"assistant", @"content": content, @"tool_calls": calls ?: [NSArray array] }];
+            BOOL screenAction = NO;
             for (NSDictionary *tc in calls) {
                 NSDictionary *fn = tc[@"function"];
                 NSString *name = fn[@"name"];
                 NSDictionary *args = [NSDictionary dictionary];
                 if ([fn[@"arguments"] isKindOfClass:[NSString class]])
                     args = [NSJSONSerialization JSONObjectWithData:
-                            [fn[@"arguments"] dataUsingEncoding:NSUTF8StringEncoding]
-                            options:0 error:NULL];
+                            [fn[@"arguments"] dataUsingEncoding:NSUTF8StringEncoding] options:0 error:NULL];
                 NSData *argsJ = [NSJSONSerialization dataWithJSONObject:args options:0 error:NULL];
                 NSString *argsS = argsJ ? [[NSString alloc] initWithData:argsJ encoding:NSUTF8StringEncoding] : @"{}";
                 fprintf(stderr, "[tool] %s %s\n", [name UTF8String], [argsS UTF8String]);
                 NSString *terr = nil;
                 NSDictionary *out = runTool(name, args, &terr) ?: @{@"ok": @NO, @"error": terr ?: @"?"};
-                if ([name isEqualToString:@"finish"] && [out[@"done"] boolValue]) finalAnswer = out[@"answer"];
+                [steps addObject:[NSString stringWithFormat:@"%@ %@", name, argsS]];
                 NSData *od = [NSJSONSerialization dataWithJSONObject:out options:0 error:NULL];
                 NSString *os = [[NSString alloc] initWithData:od encoding:NSUTF8StringEncoding];
                 if (os.length > 12000) os = [os substringToIndex:12000];
-                [results addObject:@{ @"role": @"tool", @"tool_call_id": tc[@"id"] ?: @"", @"content": os }];
+                [messages addObject:@{ @"role": @"tool", @"tool_call_id": tc[@"id"] ?: @"", @"content": os }];
+                if ([name isEqualToString:@"tap"] || [name isEqualToString:@"swipe"] ||
+                    [name isEqualToString:@"type"] || [name isEqualToString:@"open_app"]) screenAction = YES;
             }
-            [messages addObjectsFromArray:results];
-            if (finalAnswer) { printf("\n=== 结论 ===\n%s\n", [finalAnswer UTF8String]); return finalAnswer; }
-            NSString *s = shot();
-            if (s) {
-                [messages addObject:@{ @"role": @"user",
-                                       @"content": @[
-                                        @{ @"type": @"text",
-                                           @"text": [NSString stringWithFormat:@"这是执行动作后的当前屏幕 (w=%@ h=%@ points)。",
-                                                   s_global_shotMeta[@"w"] ?: @"?", s_global_shotMeta[@"h"] ?: @"?"] },
-                                        @{ @"type": @"image_url", @"image_url": @{ @"url": s } } ] }];
-            } else {
-                [messages addObject:@{ @"role": @"user", @"content":
-                                       [NSString stringWithFormat:@"注意：截图失败（Tweak 未就绪或无前台 App？）。shell 工具仍可用。"] }];
+            if (screenAction) { /* 屏幕动作后自动附最新屏幕，供模型验证 */
+                NSString *s = shot();
+                if (s) [messages addObject:@{ @"role": @"user",
+                       @"content": @[ @{ @"type": @"text", @"text": @"(执行动作后的当前屏幕)" },
+                                      @{ @"type": @"image_url", @"image_url": @{ @"url": s } } ] }];
             }
         }
-        return @"(达到最大步数，停止)";
+        if (!reply) reply = @"(达到步数上限，本轮结束)";
+        saveChat(messages);
+        if (outSteps) *outSteps = steps;
+        return reply;
     }
 }
 
@@ -607,45 +657,69 @@ static NSDictionary *statusDict(void) {
 static NSString *htmlPage(void) {
     return @"<!DOCTYPE html>\n<html lang=\"zh\">\n<head>\n<meta charset=\"utf-8\">\n"
       "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>iOSAgent</title>\n"
-      "<style>body{font-family:-apple-system,sans-serif;background:#101014;color:#eee;padding:16px;max-width:720px;margin:auto}\n"
-      "h1{font-size:20px}h2{font-size:15px;color:#7fb3ff;margin:18px 0 6px}label{display:block;margin:8px 0 4px;color:#99a}\n"
+      "<style>body{font-family:-apple-system,sans-serif;background:#101014;color:#eee;padding:12px;max-width:720px;margin:auto;margin-bottom:96px}\n"
+      "h1{font-size:18px}#status{font-size:12px;color:#9ab;margin:6px 0}\n"
+      "details{margin:8px 0}summary{cursor:pointer;color:#7fb3ff;font-size:14px}\n"
+      "label{display:block;margin:6px 0 3px;color:#99a;font-size:13px}\n"
       "input,textarea{width:100%;box-sizing:border-box;background:#1c1c24;color:#eee;border:1px solid #333;border-radius:8px;padding:8px}\n"
-      "button{background:#3b82f6;color:#fff;border:0;border-radius:8px;padding:9px 16px;margin:8px 8px 0 0}\n"
-      "pre{background:#000;padding:10px;border-radius:8px;overflow:auto;font-size:12px;white-space:pre-wrap;max-height:260px}\n"
-      "#status{font-size:13px;color:#9ab}.warn{color:#f66}\n</style>\n</head>\n<body>\n"
-      "<h1>iOSAgent · 本地面板</h1>\n<div id=\"status\">加载中…</div>\n"
-      "<h2>下发目标</h2>\n"
-      "<textarea id=\"goal\" rows=\"2\" placeholder=\"例如：apt 安装 posinst，然后上滑回桌面并打开 Safari\"></textarea>\n"
-      "<button onclick=\"sendGoal()\">运行目标</button>\n"
-      "<h2>外部模型配置</h2>\n"
-      "<label>apiBase</label><input id=\"apiBase\" placeholder=\"https://.../v1\">\n"
+      "button{background:#3b82f6;color:#fff;border:0;border-radius:8px;padding:8px 14px}\n"
+      "#chat{display:flex;flex-direction:column;gap:8px;margin:10px 0}\n"
+      ".bub{max-width:88%;padding:9px 12px;border-radius:12px;font-size:14px;white-space:pre-wrap;word-break:break-word}\n"
+      ".u{align-self:flex-end;background:#2f5fd0}\n"
+      ".a{align-self:flex-start;background:#1c1c24;border:1px solid #2a2a34}\n"
+      ".steps{font-size:11px;color:#8892a6;align-self:flex-start;max-width:88%;white-space:pre-wrap}\n"
+      ".inbar{position:fixed;bottom:0;left:0;right:0;background:#101014;padding:10px 12px;display:flex;gap:8px;max-width:720px;margin:auto;border-top:1px solid #222}\n"
+      ".inbar input{flex:1}\n"
+      "#busy{display:none;color:#7fb3ff;font-size:13px;margin:6px 0}\n"
+      ".warn{color:#f66}\n</style>\n</head>\n<body>\n"
+      "<h1>iOSAgent · 对话式助手</h1>\n<div id=\"status\">加载中…</div>\n"
+      "<details><summary>⚙️ 外部模型配置（点开填，保存即时生效）</summary>\n"
+      "<label>apiBase（OpenAI 兼容，以 /v1 结尾）</label><input id=\"apiBase\" placeholder=\"https://api.openai.com/v1\">\n"
       "<label>apiKey</label><input id=\"apiKey\" type=\"password\" placeholder=\"sk-...\">\n"
-      "<label>model</label><input id=\"model\">\n"
-      "<label>maxSteps</label><input id=\"maxSteps\" type=\"number\">\n"
-      "<label>terminalBundleId</label><input id=\"termBundle\">\n"
+      "<label>model（需支持图片+function calling）</label><input id=\"model\" placeholder=\"gpt-4o\">\n"
+      "<label>terminalBundleId（可选）</label><input id=\"termBundle\">\n"
       "<button onclick=\"saveConfig()\">保存并即时生效</button>\n"
-      "<h2>结果（最近 20 条）</h2><pre id=\"results\">-</pre>\n"
-      "<h2>agentd 日志</h2><pre id=\"log\">-</pre>\n"
+      "<button onclick=\"clearChat()\" style=\"background:#444\">清空对话</button>\n"
+      "</details>\n"
+      "<div id=\"chat\"></div>\n"
+      "<div id=\"busy\">思考中…（调用工具时可能需要一些时间）</div>\n"
+      "<div class=\"inbar\"><input id=\"msg\" placeholder=\"发消息…可直接聊天，也可让它操作手机\" onkeydown=\"if(event.key=='Enter')sendMsg()\">\n"
+      "<button onclick=\"sendMsg()\">发送</button></div>\n"
       "<script>\n"
       "function j(u,o){return fetch(u,o).then(function(r){return r.json()}).catch(function(){return {error:'bad response'}})}\n"
-      "function sendGoal(){var g=document.getElementById('goal').value.trim();if(!g)return;\n"
-      " j('/api/goal',{method:'POST',headers:{'Content-Type':'text/plain'},body:g})\n"
-      " .then(function(r){alert(r.ok?'目标已下发（守护进程 2 秒内自动执行）':'失败: '+JSON.stringify(r));if(r.ok)document.getElementById('goal').value=''});}\n"
+      "function esc(s){var d=document.createElement('div');d.textContent=String(s==null?'':s);return d.innerHTML}\n"
+      "function renderHistory(){j('/api/history').then(function(h){var c=document.getElementById('chat');c.innerHTML='';\n"
+      " var msgs=h.messages||[];for(var i=0;i<msgs.length;i++){var m=msgs[i];\n"
+      " if(m.role!='user'&&m.role!='assistant')continue;\n"
+      " var d=document.createElement('div');d.className='bub '+(m.role=='user'?'u':'a');\n"
+      " var inner=esc(m.text);if(m.image)inner+='<br><i style=\"color:#8892a6\">📷 屏幕截图</i>';\n"
+      " if(!inner)continue;d.innerHTML=inner;c.appendChild(d);}\n"
+      " c.scrollTop=c.scrollHeight;})}\n"
+      "function pollState(){j('/api/chat_state').then(function(s){var b=document.getElementById('busy');\n"
+      " if(s.error){b.style.display='none';return}\n"
+      " if(s.busy){b.style.display='block';setTimeout(pollState,1500);return}\n"
+      " b.style.display='none';if(window.lastTs!=s.ts){window.lastTs=s.ts;renderHistory();\n"
+      " var st=s.steps||[];if(st.length){var d=document.createElement('div');d.className='steps';\n"
+      " d.textContent='⚙ '+st.join('\\n⚙ ');document.getElementById('chat').appendChild(d);}}})}\n"
+      "function sendMsg(){var i=document.getElementById('msg');var t=i.value.trim();if(!t)return;\n"
+      " j('/api/chat',{method:'POST',headers:{'Content-Type':'text/plain'},body:t}).then(function(r){\n"
+      " if(r.error){alert('失败: '+JSON.stringify(r));return}\n"
+      " if(!r.ok){alert(r.busy?'上一条还在处理中…':'失败');return}\n"
+      " i.value='';renderHistory();document.getElementById('busy').style.display='block';\n"
+      " setTimeout(pollState,1500)})}\n"
       "function saveConfig(){var b={apiBase:document.getElementById('apiBase').value,apiKey:document.getElementById('apiKey').value,\n"
-      " model:document.getElementById('model').value,maxSteps:parseInt(document.getElementById('maxSteps').value,10)||40,\n"
+      " model:document.getElementById('model').value,\n"
       " terminalBundleId:document.getElementById('termBundle').value};\n"
       " j('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)})\n"
       " .then(function(r){alert(r.ok?'配置已保存并即时生效':'失败: '+JSON.stringify(r))})}\n"
-      "function tick(){j('/api/status').then(function(s){if(s.error){document.getElementById('status').textContent='连接失败';return}\n"
+      "function clearChat(){j('/api/clear',{method:'POST'}).then(function(r){if(r.ok){window.lastTs=0;renderHistory()}})}\n"
+      "function tick(){j('/api/status').then(function(s){if(s.error)return;\n"
       " var st='pid '+s.pid+' · web :'+s.webPort+' · shell '+s.shell+' · model '+s.model+' · key '+(s.keySet?'已配置':'<b class=\"warn\">未配置</b>');\n"
-      " st+='<br>已注入进程: '+JSON.stringify(s.tweaks);if(s.stopRequested)st+='<br><b class=\"warn\">stop 文件存在，agentd 即将退出</b>';\n"
-      " document.getElementById('status').innerHTML=st;var a=document.getElementById('apiBase');\n"
-      " if(!a.value){a.value=s.apiBase||'';document.getElementById('model').value=s.model||'';\n"
-      " document.getElementById('maxSteps').value=s.maxSteps||40;document.getElementById('termBundle').value=s.terminalBundleId||''}});}\n"
-      "j('/api/results').then(function(r){var lines=(r.results||[]).map(function(x){return '· '+x.goal+'\\n  → '+String(x.answer||'').slice(0,200)});\n"
-      " document.getElementById('results').textContent=lines.join('\\n')||'(暂无结果)'})\n"
-      "j('/api/log').then(function(l){document.getElementById('log').textContent=l.log||'(暂无日志)'})\n"
-      "setInterval(function(){tick()},3000);tick();\n"
+      " st+='<br>已注入进程: '+JSON.stringify(s.tweaks);document.getElementById('status').innerHTML=st;\n"
+      " var a=document.getElementById('apiBase');if(!a.value){a.value=s.apiBase||'';document.getElementById('model').value=s.model||'';\n"
+      " document.getElementById('termBundle').value=s.terminalBundleId||''}})}\n"
+      "setInterval(function(){tick()},5000);tick();renderHistory();\n"
+      "setInterval(function(){var b=document.getElementById('busy');if(b.style.display!='block')pollState()},4000);pollState();\n"
       "</script>\n</body>\n</html>\n";
 }
 
@@ -784,6 +858,61 @@ static void webHandle(int c) {
         httpReply(c, 200, "OK", "application/json", j2s(@{@"ok": @YES, @"queued": g}));
         return;
     }
+    if ([method isEqualToString:@"POST"] && [path isEqualToString:@"/api/chat"]) {
+        NSString *t = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
+        t = [t stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        if (!t.length) { httpReply(c, 400, "Bad Request", "application/json", @"{\"ok\":false}\n"); return; }
+        if (g_chatBusy) { httpReply(c, 200, "OK", "application/json", @"{\"ok\":false,\"busy\":true}\n"); return; }
+        g_chatBusy = 1;
+        saveState(YES, @"", @[]);
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            @autoreleasepool {
+                NSString *reply = chatTurnCore(t, NULL);
+                dlog("chat done: %@", [reply substringToIndex:MIN((NSUInteger)60, reply.length)]);
+                g_chatBusy = 0;
+            }
+        });
+        httpReply(c, 200, "OK", "application/json", @"{\"ok\":true,\"busy\":true}\n");
+        return;
+    }
+    if ([method isEqualToString:@"GET"] && [path isEqualToString:@"/api/chat_state"]) {
+        NSDictionary *s = loadState();
+        httpReply(c, 200, "OK", "application/json", j2s(@{@"busy": s[@"busy"], @"reply": s[@"reply"], @"ts": s[@"ts"]}));
+        return;
+    }
+    if ([method isEqualToString:@"GET"] && [path isEqualToString:@"/api/history"]) {
+        NSMutableArray *out = [NSMutableArray array];
+        NSArray *msgs = loadChat() ?: [NSArray array];
+        for (NSDictionary *m in msgs) {
+            if (![m isKindOfClass:[NSDictionary class]]) continue;
+            NSString *role = [m[@"role"] isKindOfClass:[NSString class]] ? m[@"role"] : @"";
+            if ([role isEqualToString:@"system"] || [role isEqualToString:@"tool"]) continue;
+            id cc = m[@"content"];
+            NSString *text = @"";
+            BOOL hasImg = NO;
+            if ([cc isKindOfClass:[NSString class]]) text = cc;
+            else if ([cc isKindOfClass:[NSArray class]]) {
+                NSMutableArray *parts = [NSMutableArray array];
+                for (NSDictionary *p in cc) {
+                    if (![p isKindOfClass:[NSDictionary class]]) continue;
+                    if ([p[@"type"] isEqualToString:@"text"]) [parts addObject:[p[@"text"] isKindOfClass:[NSString class]] ? p[@"text"] : @""];
+                    if ([p[@"type"] isEqualToString:@"image_url"]) hasImg = YES;
+                }
+                text = [parts componentsJoinedByString:@" "];
+            }
+            if (![text length]) continue;
+            if ([text length] > 2000) text = [text substringToIndex:2000];
+            [out addObject:@{ @"role": role, @"text": text, @"image": @(hasImg) }];
+        }
+        httpReply(c, 200, "OK", "application/json", j2s(@{@"messages": out}));
+        return;
+    }
+    if ([method isEqualToString:@"POST"] && [path isEqualToString:@"/api/clear"]) {
+        for (NSString *p in chatCandidates()) [[NSFileManager defaultManager] removeItemAtPath:p error:NULL];
+        saveState(NO, @"", @[]);
+        httpReply(c, 200, "OK", "application/json", @"{\"ok\":true}\n");
+        return;
+    }
     if ([method isEqualToString:@"POST"] && [path isEqualToString:@"/api/config"]) {
         NSDictionary *jb = [NSJSONSerialization JSONObjectWithData:body options:0 error:NULL];
         if (![jb isKindOfClass:[NSDictionary class]]) { httpReply(c, 400, "Bad Request", "application/json", @"{\"ok\":false}\n"); return; }
@@ -878,7 +1007,10 @@ static void daemonMode(void) {
                     NSString *line = [line0 stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
                     if (!line.length) continue;
                     fprintf(stderr, "\n[goal] %s\n", [line UTF8String]);
-                    NSString *answer = runGoal(line);
+                    if (g_chatBusy) { appendResult(line, @"(skip: web chat in progress)"); continue; }
+                    g_chatBusy = 1;
+                    NSString *answer = chatTurnCore(line, NULL);
+                    g_chatBusy = 0;
                     appendResult(line, answer);
                 }
                 offset = all.length;
@@ -898,7 +1030,7 @@ static void replMode(void) {
         char *nl = strchr(buf, '\n');
         if (nl) *nl = 0;
         if (buf[0] == 0) continue;
-        runGoal([NSString stringWithUTF8String:buf]);
+        chatTurnCore([NSString stringWithUTF8String:buf], NULL);
     }
 }
 
@@ -943,10 +1075,10 @@ int main(int argc, char **argv) {
         if (argc > 2) {
             NSMutableString *goal = [NSMutableString string];
             for (int i = 2; i < argc; i++) { if (i > 2) [goal appendString:@" "]; [goal appendString:[NSString stringWithUTF8String:argv[i]]]; }
-            runGoal(goal);
+            chatTurnCore(goal, NULL);
             return 0;
         }
-        printf("用法: iosagentd \"目标\" | iosagentd --repl | iosagentd --daemon | iosagentd --setup | iosagentd --status\n");
+        printf("用法: iosagentd \"消息\"（对话式） | iosagentd --repl | iosagentd --daemon | iosagentd --setup | iosagentd --status\n");
         return 0;
     }
 }

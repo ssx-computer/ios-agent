@@ -1,22 +1,23 @@
-# iOSAgent — 纯 iOS 本地 AI Agent，单 .deb 越狱插件（RootHide / Dopamine）
+# iOSAgent — 纯 iOS 本地**对话式 AI 助手**，单 .deb 越狱插件（RootHide / Dopamine）
 
 一个 `.deb` 装完，手机上多两个东西：
 
 1. **Tweak**（注入所有 App + SpringBoard）：unix/loopback socket 服务，
    合成触摸 / 输入 / 截图 / 视图树 / 启动 App / 通知捕获；SpringBoard 端
    自动拉起并守护 agent 进程（掉线 30s 内自动复活，用户可停）。
-2. **`iosagentd`**（`/usr/bin/iosagentd`，Obj-C + 系统 libcurl，**零外部运行时**）：
-   Agent 核心，纯本地运行，模型走**外部 LLM API**（OpenAI 兼容，支持
-   视觉 + function calling）。工具两条腿：
-   - `shell`：直接调 **本地 zsh**（`/var/jb/usr/bin/zsh` → `/usr/bin/zsh`
-     → `/bin/zsh` → `/bin/sh`）—— 访问网页（`apt install curl` 后可
-     `curl` 任意网址）、创建/修改文件、apt 包管理、看日志……
+2. **`iosagentd`**（`/usr/bin/iosagentd`，Obj-C + Foundation，**零外部运行时**）：
+   **对话式 AI**——像聊天一样交互，模型可以调用工具操作手机，也可以
+   直接用文字回答（不必调用工具）。模型走**外部 LLM API**（OpenAI 兼容，
+   视觉 + function calling）。会话历史持久化，跨重启/跨入口延续上下文。
+   工具两条腿：
+   - `shell`：直接调 **本地 zsh** —— 访问网页（`curl` 任意网址）、
+     创建/修改文件、apt 包管理、看日志……
    - 屏幕通道：`tap/swipe/type/ui_tree/open_app` 经 127.0.0.1 loopback
      TCP 调 Tweak；`terminal_send` 在屏幕终端 App 里发命令；
-     `recent_notifs` 读通知；`finish` 收束。
+     `recent_notifs` 读通知。
 
-**无需电脑**：手机上开一个终端 App（nsshell / iSSH / iSH / 越狱 Terminal）
-跑 `iosagentd --repl`，或往目标文件里写一行目标，agent 全自动执行。
+**无需电脑**：手机 Safari 打开本机 Web 面板（127.0.0.1:80/8080）聊天，
+或终端 App 里 `iosagentd --repl`。
 
 ## 目录
 
