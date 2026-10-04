@@ -185,10 +185,13 @@ static NSString *llmCall(NSArray *messages, NSArray *tools, NSString **errMsg) {
             respErr = error;
             dispatch_semaphore_signal(sem);
         }];
+    g_curTask = task;
     [task resume];
     dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(200 * NSEC_PER_SEC)));
+    g_curTask = nil;
     if (!respData) {
-        *errMsg = respErr.localizedDescription ?: @"LLM 请求超时或失败";
+        if (g_chatAbort) *errMsg = @"(已中断)";
+        else *errMsg = respErr.localizedDescription ?: @"LLM 请求超时或失败";
         return nil;
     }
     NSDictionary *j = [NSJSONSerialization JSONObjectWithData:respData options:0 error:NULL];
@@ -490,6 +493,8 @@ static NSString *const SYSTEM =
 #define CHAT_FILE   @"/var/mobile/Library/iosagent_chat.json"
 #define STATE_FILE  @"/private/tmp/iosagent_chat_state.json"
 static volatile int g_chatBusy = 0;
+static volatile int g_chatAbort = 0;   /* 中断标志：置 1 后当前轮次尽快退出 */
+static NSURLSessionDataTask *g_curTask = nil; /* 正在进行的 LLM 请求，abort 时 cancel */
 
 static NSArray *chatCandidates(void) {
     NSMutableArray *a = [NSMutableArray array];
@@ -569,6 +574,7 @@ static NSString *chatTurnCore(NSString *userText, NSMutableArray **outSteps) {
         NSMutableArray *steps = [NSMutableArray array];
         NSString *reply = nil;
         for (int step = 1; step <= g_maxSteps; step++) {
+            if (g_chatAbort) { reply = @"(已中断)"; break; }
             fprintf(stderr, "\n[step %d] LLM...\n", step);
             NSString *err = nil;
             NSDictionary *m = llmCall(messages, tools, &err);
@@ -610,6 +616,7 @@ static NSString *chatTurnCore(NSString *userText, NSMutableArray **outSteps) {
             }
         }
         if (!reply) reply = @"(达到步数上限，本轮结束)";
+        g_chatAbort = 0; /* 重置中断标志 */
         saveChat(messages);
         if (outSteps) *outSteps = steps;
         return reply;
@@ -681,7 +688,7 @@ static NSString *htmlPage(void) {
       "<button onclick=\"clearChat()\" style=\"background:#444\">清空对话</button>\n"
       "</details>\n"
       "<div id=\"chat\"></div>\n"
-      "<div id=\"busy\">思考中…（调用工具时可能需要一些时间）</div>\n"
+      "<div id=\"busy\">思考中…（工具执行中可能需要一些时间）<button onclick=\"abortChat()\" style=\"background:#c0392b;padding:2px 10px;font-size:12px;margin-left:8px\">停止</button></div>\n"
       "<div class=\"inbar\"><input id=\"msg\" placeholder=\"发消息…可直接聊天，也可让它操作手机\" onkeydown=\"if(event.key=='Enter')sendMsg()\">\n"
       "<button onclick=\"sendMsg()\">发送</button></div>\n"
       "<script>\n"
@@ -711,6 +718,7 @@ static NSString *htmlPage(void) {
       " terminalBundleId:document.getElementById('termBundle').value};\n"
       " j('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)})\n"
       " .then(function(r){alert(r.ok?'配置已保存并即时生效':'失败: '+JSON.stringify(r))})}\n"
+      "function abortChat(){j('/api/abort',{method:'POST'})}\n"
       "function clearChat(){j('/api/clear',{method:'POST'}).then(function(r){if(r.ok){window.lastTs=0;renderHistory()}})}\n"
       "function tick(){j('/api/status').then(function(s){if(s.error)return;\n"
       " var st='pid '+s.pid+' · web :'+s.webPort+' · shell '+s.shell+' · model '+s.model+' · key '+(s.keySet?'已配置':'<b class=\"warn\">未配置</b>');\n"
@@ -904,6 +912,12 @@ static void webHandle(int c) {
             [out addObject:@{ @"role": role, @"text": text, @"image": @(hasImg) }];
         }
         httpReply(c, 200, "OK", "application/json", j2s(@{@"messages": out}));
+        return;
+    }
+    if ([method isEqualToString:@"POST"] && [path isEqualToString:@"/api/abort"]) {
+        g_chatAbort = 1;
+        if (g_curTask) [g_curTask cancel]; /* 正在进行的 LLM 请求立即取消 */
+        httpReply(c, 200, "OK", "application/json", @"{\"ok\":true}\n");
         return;
     }
     if ([method isEqualToString:@"POST"] && [path isEqualToString:@"/api/clear"]) {
