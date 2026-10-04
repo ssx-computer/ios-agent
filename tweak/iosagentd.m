@@ -424,7 +424,6 @@ static NSArray *toolDefs(void) {
           @"name": @"recent_notifs",
           @"description": @"读取手机上最近出现过的通知列表。",
           @"parameters": @{ @"type": @"object", @"properties": [NSDictionary dictionary] } } },
-      @{ @"type": @"function", @"function": },
     ];
 }
 
