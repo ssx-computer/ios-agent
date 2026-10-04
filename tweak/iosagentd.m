@@ -70,6 +70,9 @@ static NSString *jbPath(const char *rel) {
 #define STOP_FILE  @"/private/tmp/iosagentd.stop"
 #define OFFSET_FILE @"/private/tmp/iosagentd.offset"
 
+static volatile int g_chatAbort = 0;   /* 中断标志：置 1 后当前轮次尽快退出（llmCall/chatTurnCore 用，须在使用前声明） */
+static NSURLSessionDataTask *g_curTask = nil; /* 正在进行的 LLM 请求，abort 时 cancel */
+
 /* 配置文件候选路径（按序找第一个可用的；IAGENT_CFG 环境变量优先） */
 static NSString *g_cfgPath = nil;   /* 实际使用/生成的配置路径 */
 static NSString *g_setupErr = nil;  /* --setup 失败时的最后一个错误 */
@@ -493,8 +496,6 @@ static NSString *const SYSTEM =
 #define CHAT_FILE   @"/var/mobile/Library/iosagent_chat.json"
 #define STATE_FILE  @"/private/tmp/iosagent_chat_state.json"
 static volatile int g_chatBusy = 0;
-static volatile int g_chatAbort = 0;   /* 中断标志：置 1 后当前轮次尽快退出 */
-static NSURLSessionDataTask *g_curTask = nil; /* 正在进行的 LLM 请求，abort 时 cancel */
 
 static NSArray *chatCandidates(void) {
     NSMutableArray *a = [NSMutableArray array];
